@@ -482,7 +482,7 @@ const Pos = () => {
       {/* Header */}
       <Box sx={{ p: 2, bgcolor: 'primary.main', color: 'white' }}>
         <Typography variant='h4' component='h1' align='center'>
-          Desi Delights - POS Kiosk
+          Action Arena - POS Kiosk
         </Typography>
       </Box>
 

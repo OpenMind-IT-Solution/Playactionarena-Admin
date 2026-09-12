@@ -2,79 +2,85 @@ import { getSession, signOut } from 'next-auth/react'
 import { toast } from 'react-toastify'
 import axios from 'axios'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || ''
+
+const getApiUrl = (endpoint: string) => {
+  if (!API_URL) {
+    throw new Error('API base URL is not configured. Please set NEXT_PUBLIC_API_URL or API_URL.')
+  }
+
+  const normalizedBase = API_URL.replace(/\/+$/, '')
+  const normalizedEndpoint = endpoint.replace(/^\/+/, '')
+
+  return `${normalizedBase}/${normalizedEndpoint}`
+}
+
+const parseResponseBody = async (response: Response) => {
+  const text = await response.text()
+
+  if (!text) {
+    return null
+  }
+
+  const trimmed = text.trim()
+
+  if (!trimmed) {
+    return null
+  }
+
+  const contentType = response.headers.get('content-type') || ''
+
+  if (contentType.includes('application/json') || trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    try {
+      return JSON.parse(trimmed)
+    } catch {
+      return trimmed
+    }
+  }
+
+  return trimmed
+}
+
+const getErrorMessage = (payload: any, fallback: string) => {
+  if (!payload) {
+    return fallback
+  }
+
+  if (typeof payload === 'string') {
+    return payload
+  }
+
+  if (Array.isArray(payload.errors)) {
+    return payload.errors.join(', ')
+  }
+
+  return payload.errors || payload.message || payload.Message || fallback
+}
 
 const handleResponse = async (response: Response) => {
-  // if (!response.ok) {
-  //   console.log(response);
-
-  //   if (response.status === 401) {
-  //     // Unauthorized, log out and redirect to login page
-  //     await signOut({ redirect: true, callbackUrl: "/login" });
-  //     throw new Error("Unauthorized. Token missing or expired");
-  //   } else if (response.status === 422) {
-  //     // Unprocessable Entity, handle validation errors
-  //     const errorResponse = await response.json();
-  //     const { message, data } = errorResponse;
-  //     if (message === "validation error" && data) {
-  //       const errors = Object.keys(data).map((key) => `${key}: ${data[key]}`);
-  //       toast.error(errors.join("; "));
-  //       throw new Error("Validation error1");
-  //     } else {
-  //       toast.error(message || "Validation error");
-  //       throw new Error(message || "Validation error");
-  //     }
-  //   } else if (response.status === 400) {
-  //     // Bad Request, handle validation errors
-  //     const errorResponse = await response.json();
-  //     const { Message, data } = errorResponse;
-  //     if (Message === "validation error" && data && typeof data === "object") {
-  //       const errors = Object.values(data).map((errorMessage) => errorMessage);
-  //       toast.error(errors.join("; "));
-  //       throw new Error("Validation error");
-  //     } else {
-  //       toast.error(Message || "Validation error");
-  //       throw new Error(Message || "Validation error");
-  //     }
-  //   } else {
-  //     // Other errors
-  //     const error = await response.text();
-  //     toast.error(error);
-  //     throw new Error(error);
-  //   }
-  // }
-  // return await response.json();
-
   if (!response.ok) {
-    console.log(response)
-
     if (response.status === 401) {
-      // Unauthorized, log out and redirect to login page
       await signOut({ redirect: true, callbackUrl: '/login' })
       throw new Error('Unauthorized. Token missing or expired')
-    } else {
-      const errorResponse = await response.json().catch(() => ({}))
-
-      const message =
-        errorResponse?.errors ||
-        errorResponse?.message ||
-        errorResponse?.Message ||
-        `Request failed with status ${response.status}`
-
-      toast.error(message)
-      throw new Error(message)
-    }
-  } else {
-    const successResponse = await response.json()
-
-    if (successResponse.ResponseStatus === 'failure') {
-      toast.error(successResponse?.Message)
-      throw new Error(successResponse?.Message)
     }
 
-    
-return successResponse
+    const errorPayload = await parseResponseBody(response)
+    const message = getErrorMessage(errorPayload, `Request failed with status ${response.status}`)
+
+    toast.error(message)
+    throw new Error(message)
   }
+
+  const successResponse = await parseResponseBody(response)
+
+  if (successResponse && typeof successResponse === 'object' && successResponse.ResponseStatus === 'failure') {
+    const message = successResponse?.Message || 'Request failed'
+
+    toast.error(message)
+    throw new Error(message)
+  }
+
+  return successResponse
 }
 
 export const fetchData = async (endpoint: string, options: RequestInit = {}) => {
@@ -85,7 +91,7 @@ export const fetchData = async (endpoint: string, options: RequestInit = {}) => 
       throw new Error('No session or access token found')
     }
 
-    const response = await fetch(`${API_URL}/${endpoint}`, {
+    const response = await fetch(getApiUrl(endpoint), {
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -108,7 +114,7 @@ export const get = (endpoint: string) => fetchData(endpoint)
 
 export const unauthorizedPost = async (endpoint: string, data: any) => {
   try {
-    const response = await fetch(`${API_URL}/${endpoint}`, {
+    const response = await fetch(getApiUrl(endpoint), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -149,7 +155,7 @@ export const postFormData = async (endpoint: string, formData: any) => {
       throw new Error('No session or access token found')
     }
 
-    const response = await fetch(`${API_URL}/${endpoint}`, {
+    const response = await fetch(getApiUrl(endpoint), {
       method: 'POST',
       body: formData,
       headers: {
@@ -222,7 +228,7 @@ export const ExportData = async (endpoint: string, formData: any, fileName: stri
       throw new Error('No session or access token found')
     }
 
-    const response = await axios.post(`${API_URL}/${endpoint}`, formData, {
+    const response = await axios.post(getApiUrl(endpoint), formData, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${session.user.accessToken}`
