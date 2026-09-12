@@ -24,22 +24,32 @@ const nextConfig: NextConfig = {
       }
     ]
   },
-   images: {
+  images: {
     remotePatterns: [
       {
-        protocol: 'http', 
+        protocol: 'http',
         hostname: 'localhost',
         port: '3009',
-        pathname: '/upload/images/**', 
+        pathname: '/upload/images/**'
       },
       {
-        protocol: 'http', 
+        protocol: 'http',
         hostname: 'localhost',
         port: '3009',
-        pathname: '/uploads/**', 
+        pathname: '/uploads/**'
       },
-    ],
-  },
+      {
+        protocol: 'https',
+        hostname: 'api.openminditsolutions.in',
+        pathname: '/upload/images/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.openminditsolutions.in',
+        pathname: '/uploads/**'
+      }
+    ]
+  }
 }
 
 export default nextConfig

@@ -37,7 +37,7 @@ const initialData: Data = {
   firstName: 'Ramesh',
   lastName: 'Patel',
   email: 'ramesh.patel@desidelights.com',
-  organization: 'Desi Delights',
+  organization: 'Action Arena',
   phoneNumber: '+1 (917) 543-9876',
   address: '123 Main St, New York, NY 10001',
   state: 'New York',

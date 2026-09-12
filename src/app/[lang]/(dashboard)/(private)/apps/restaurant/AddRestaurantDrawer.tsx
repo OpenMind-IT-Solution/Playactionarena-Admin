@@ -206,7 +206,7 @@ const AddRestaurantDrawer = (props: Props) => {
                 {...field}
                 fullWidth
                 label={<RequiredLabel label='Restaurant Name' isRequired={true} />}
-                placeholder='Desi Delights'
+                placeholder='Action Arena'
                 error={!!errors.name}
                 helperText={errors.name?.message}
               />

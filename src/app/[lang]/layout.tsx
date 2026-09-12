@@ -24,15 +24,15 @@ import { i18n } from '@configs/i18n'
 import { getSystemMode } from '@core/utils/serverHelpers'
 
 // Style Imports
-import '@/app/globals.css'
+import '../globals.css'
 
 // Generated Icon CSS Imports
-import '@assets/iconify-icons/generated-icons.css'
+import '../../assets/iconify-icons/generated-icons.css'
 
 export const metadata = {
-  title: 'Desi Delights - Where Evert Bite Feels Like Family',
+  title: 'Action Arena - Where Evert Bite Feels Like Family',
   description:
-    'Desi Delights - Where Evert Bite Feels Like Family'
+    'Action Arena - Where Evert Bite Feels Like Family'
 }
 
 const RootLayout = async (props: ChildrenType & { params: Promise<{ lang: Locale }> }) => {

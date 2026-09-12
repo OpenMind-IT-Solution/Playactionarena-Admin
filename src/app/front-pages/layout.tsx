@@ -21,10 +21,10 @@ import ScrollToTop from '@core/components/scroll-to-top'
 import { getSystemMode } from '@core/utils/serverHelpers'
 
 // Style Imports
-import '@/app/globals.css'
+import '../globals.css'
 
 // Generated Icon CSS Imports
-import '@assets/iconify-icons/generated-icons.css'
+import '../../assets/iconify-icons/generated-icons.css'
 
 export const metadata = {
   title: 'Vuexy - MUI Next.js Admin Dashboard Template',

@@ -193,7 +193,7 @@ const buildReceiptHtml = (opts: ReceiptRenderOptions, theme: ReceiptTheme): stri
     ...Object.fromEntries(Object.entries(restaurant ?? {}).filter(([, v]) => v != null && String(v).trim() !== ''))
   }
 
-  const restaurantName = esc((source.name ?? '').trim() || 'Desi Delights')
+  const restaurantName = esc((source.name ?? '').trim() || 'Action Arena')
   const tagline = esc((source.tagline ?? '').trim() || 'Quick Bites, Happy Vibes')
   const phone = (source.phoneNumber ?? '').trim()
   const website = (source.website ?? '').trim()
@@ -339,7 +339,7 @@ const buildImagePrintDocument = (imageData: string, fileName: string): string =>
 <html>
 <head>
 <meta charset="utf-8" />
-<title>Desi Delights - Receipt</title>
+<title>Action Arena - Receipt</title>
 <style>
   @page { size: 80mm 297mm; margin: 0; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -394,7 +394,7 @@ const buildPrintDocument = (receiptHtml: string): string => `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8" />
-<title>Desi Delights - Receipt</title>
+<title>Action Arena - Receipt</title>
 <style>
   @page { size: 80mm 297mm; margin: 0; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
