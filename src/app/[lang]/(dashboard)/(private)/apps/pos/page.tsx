@@ -604,7 +604,7 @@ const Pos = () => {
                           {item.name}
                         </Typography>
                         <Typography variant='h6' color='primary'>
-                          €{(item.price * (1 + (item.vatRate || 12) / 100)).toFixed(2)}
+                          €{(item.price * (1 + ((item.vatRate ?? 12) / 100))).toFixed(2)}
                         </Typography>
                       </Box>
                       <Typography variant='body2' color='text.secondary' sx={{ mb: 1, height: 40, overflow: 'hidden' }}>

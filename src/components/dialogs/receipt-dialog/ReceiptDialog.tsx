@@ -335,59 +335,59 @@ const buildReceiptHtml = (opts: ReceiptRenderOptions, theme: ReceiptTheme): stri
 }
 
 // Prints the receipt as a raster image (matches the thermal-roll look)
-const buildImagePrintDocument = (imageData: string, fileName: string): string => `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8" />
-<title>Action Arena - Receipt</title>
-<style>
-  @page { size: 80mm 297mm; margin: 0; }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { background: #f4f4f4; }
-  .dd-page { display: flex; flex-direction: column; align-items: center; }
-  .dd-receipt-image { width: 80mm; max-width: 96vw; height: auto; display: block; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
-  .dd-print-actions { display: flex; justify-content: center; gap: 10px; padding: 18px 0 28px; }
-  .dd-print-actions button { padding: 10px 28px; border-radius: 6px; border: 1px solid #ccc; background: #fff; font-size: 14px; font-family: system-ui, -apple-system, sans-serif; cursor: pointer; }
-  .dd-print-actions .primary { background: #1976d2; color: #fff; border-color: #1976d2; }
-  @media print {
-    body { background: #fff; }
-    .dd-print-actions { display: none !important; }
-    .dd-receipt-image { box-shadow: none; }
-  }
-</style>
-</head>
-<body>
-  <div class="dd-page">
-    <img id="dd-receipt-image" class="dd-receipt-image" src="${imageData}" />
-    <div class="dd-print-actions">
-      <button class="primary" type="button" onclick="window.print()">Print</button>
-      <button type="button" onclick="ddDownload()">Download</button>
-      <button type="button" onclick="window.close()">Close</button>
-    </div>
-  </div>
-  <script>
-    function ddDownload() {
-      var img = document.getElementById('dd-receipt-image')
-      if (!img) return
-      var a = document.createElement('a')
-      a.href = img.src
-      a.download = '${fileName}'
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-    }
-    // Fit the page height to the receipt image so Print produces one page
-    window.addEventListener('load', function () {
-      var img = document.getElementById('dd-receipt-image')
-      if (!img || !img.naturalWidth) return
-      var heightMm = Math.ceil((img.naturalHeight / img.naturalWidth) * 80 + 1)
-      var style = document.createElement('style')
-      style.innerHTML = '@page { size: 80mm ' + heightMm + 'mm; margin: 0; }'
-      document.head.appendChild(style)
-    })
-  </script>
-</body>
-</html>`
+// const buildImagePrintDocument = (imageData: string, fileName: string): string => `<!DOCTYPE html>
+// <html>
+// <head>
+// <meta charset="utf-8" />
+// <title>Action Arena - Receipt</title>
+// <style>
+//   @page { size: 80mm 297mm; margin: 0; }
+//   * { margin: 0; padding: 0; box-sizing: border-box; }
+//   html, body { background: #f4f4f4; }
+//   .dd-page { display: flex; flex-direction: column; align-items: center; }
+//   .dd-receipt-image { width: 80mm; max-width: 96vw; height: auto; display: block; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+//   .dd-print-actions { display: flex; justify-content: center; gap: 10px; padding: 18px 0 28px; }
+//   .dd-print-actions button { padding: 10px 28px; border-radius: 6px; border: 1px solid #ccc; background: #fff; font-size: 14px; font-family: system-ui, -apple-system, sans-serif; cursor: pointer; }
+//   .dd-print-actions .primary { background: #1976d2; color: #fff; border-color: #1976d2; }
+//   @media print {
+//     body { background: #fff; }
+//     .dd-print-actions { display: none !important; }
+//     .dd-receipt-image { box-shadow: none; }
+//   }
+// </style>
+// </head>
+// <body>
+//   <div class="dd-page">
+//     <img id="dd-receipt-image" class="dd-receipt-image" src="${imageData}" />
+//     <div class="dd-print-actions">
+//       <button class="primary" type="button" onclick="window.print()">Print</button>
+//       <button type="button" onclick="ddDownload()">Download</button>
+//       <button type="button" onclick="window.close()">Close</button>
+//     </div>
+//   </div>
+//   <script>
+//     function ddDownload() {
+//       var img = document.getElementById('dd-receipt-image')
+//       if (!img) return
+//       var a = document.createElement('a')
+//       a.href = img.src
+//       a.download = '${fileName}'
+//       document.body.appendChild(a)
+//       a.click()
+//       a.remove()
+//     }
+//     // Fit the page height to the receipt image so Print produces one page
+//     window.addEventListener('load', function () {
+//       var img = document.getElementById('dd-receipt-image')
+//       if (!img || !img.naturalWidth) return
+//       var heightMm = Math.ceil((img.naturalHeight / img.naturalWidth) * 80 + 1)
+//       var style = document.createElement('style')
+//       style.innerHTML = '@page { size: 80mm ' + heightMm + 'mm; margin: 0; }'
+//       document.head.appendChild(style)
+//     })
+//   </script>
+// </body>
+// </html>`
 
 // Fallback when image capture fails: print the receipt as styled HTML
 const buildPrintDocument = (receiptHtml: string): string => `<!DOCTYPE html>
@@ -616,14 +616,14 @@ const ReceiptDialog = forwardRef<ReceiptDialogHandle, ReceiptDialogProps>(
           if (returned != null) resolvedOrderNumber = returned
         }
 
-        // Capture the rendered receipt as an image (same look as the preview/thermal roll).
-        // This runs BEFORE opening the tab so this page stays foregrounded the whole time —
-        // a background tab would freeze the capture and make the receipt "buffer".
-        const imageData = await captureReceiptImage()
+        // const imageData = await captureReceiptImage()
 
-        const documentHtml = imageData
-          ? buildImagePrintDocument(imageData, `receipt-${resolvedOrderNumber ?? Date.now()}.png`)
-          : buildPrintDocument(buildReceiptHtml({ ...renderOptions, orderNumber: resolvedOrderNumber }, 'print'))
+        // const documentHtml = imageData
+        //   ? buildImagePrintDocument(imageData, `receipt-${resolvedOrderNumber ?? Date.now()}.png`)
+        //   : buildPrintDocument(buildReceiptHtml({ ...renderOptions, orderNumber: resolvedOrderNumber }, 'print'))
+
+
+        const documentHtml = buildPrintDocument(buildReceiptHtml({ ...renderOptions, orderNumber: resolvedOrderNumber }, 'print'))
 
         // Open the tab only once the receipt is ready — it appears fully rendered, never buffering
         const printWindow = window.open('', '_blank')

@@ -148,7 +148,7 @@ const AddMenuItemDrawer = (props: Props) => {
         offer: itemToEdit.offer || '0',
         status: itemToEdit.status ?? true,
         categoryId: itemToEdit.categories?.map(c => c.id) || [],
-        vatRate: itemToEdit.vatRate || 12,
+        vatRate: itemToEdit.vatRate ?? 12,
         priority: itemToEdit.priority ?? 999999
       })
 
@@ -161,7 +161,7 @@ const AddMenuItemDrawer = (props: Props) => {
       }).filter(Boolean)
 
       setFiles(existingImages)
-      setTotalPriceInput(Math.round(itemToEdit.price * (1 + (itemToEdit.vatRate || 12) / 100) * 10000) / 10000)
+      setTotalPriceInput(Math.round(itemToEdit.price * (1 + ((itemToEdit.vatRate ?? 12) / 100)) * 10000) / 10000)
     } else {
       resetForm()
       setFiles([])
@@ -176,15 +176,26 @@ const AddMenuItemDrawer = (props: Props) => {
   const [totalPriceInput, setTotalPriceInput] = useState<number>(0)
   const watchedVatRate = watch('vatRate')
 
-  const computedPrice = totalPriceInput > 0 && (watchedVatRate || 0) > 0
-    ? Math.round(totalPriceInput / (1 + (watchedVatRate || 0) / 100) * 10000) / 10000
+  const computedPrice = totalPriceInput > 0
+    ? Math.round(
+        watchedVatRate === 0
+          ? totalPriceInput
+          : totalPriceInput / (1 + (watchedVatRate ?? 0) / 100) * 10000
+      ) / 10000
     : 0
 
   const handleTotalPriceChange = (value: number) => {
     setTotalPriceInput(value)
 
-    if (value > 0 && (watchedVatRate || 0) > 0) {
-      setValue('price', Math.round(value / (1 + (watchedVatRate || 0) / 100) * 10000) / 10000)
+    if (value > 0) {
+      const normalizedVatRate = watchedVatRate ?? 0
+
+      setValue(
+        'price',
+        Math.round(
+          normalizedVatRate === 0 ? value : value / (1 + normalizedVatRate / 100) * 10000
+        ) / 10000
+      )
     }
   }
 

@@ -348,7 +348,7 @@ const MenuTable = () => {
         header: 'Total price',
         cell: ({ row }) => {
           const originalPrice = row.original.price
-          const vatRate = row.original.vatRate || 12
+          const vatRate = row.original.vatRate ?? 12
           const totalPrice = Math.round(originalPrice * (1 + vatRate / 100) * 100) / 100
           const offerPercentage = parseFloat(row.original.offer || '0')
 
