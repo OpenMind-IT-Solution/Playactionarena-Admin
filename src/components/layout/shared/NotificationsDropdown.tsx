@@ -229,7 +229,7 @@ const NotificationDropdown = () => {
     if (!('Notification' in window) || Notification.permission !== 'granted') return
     new Notification(`New Order #${order.id}`, {
       body: `₹${parseFloat(order.totalAmount).toFixed(2)} • ${order.orderType}`,
-      icon: '/logo.png',
+      icon: '/logo.webp',
       tag: `order-${order.id}`,
       requireInteraction: true
     })
