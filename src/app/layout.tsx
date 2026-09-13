@@ -8,6 +8,7 @@ import './globals.css'
 import '../assets/iconify-icons/generated-icons.css'
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://cafe.playactionarena.com'),
   title: 'Action Arena - Where Evert Bite Feels Like Family',
   description: 'Action Arena - Where Evert Bite Feels Like Family',
   appleWebApp: {
