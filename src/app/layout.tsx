@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+
 import type { Metadata, Viewport } from 'next'
 
 import 'react-perfect-scrollbar/dist/css/styles.css'
