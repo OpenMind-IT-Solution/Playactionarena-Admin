@@ -13,8 +13,8 @@ export type OrderSummary = {
   subtotal: number
   foodSubtotal: number
   drinksSubtotal: number
-  foodVat: number
-  drinksVat: number
-  vatTotal: number
+  foodGst: number
+  drinksGst: number
+  gstTotal: number
   total: number
 }

@@ -110,10 +110,10 @@ const KpiCardGrid = ({ data, customers, loading }: KpiCardGridProps) => {
 
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2.5, mb: 4 }}>
-      <KpiCard title='Total Sell' value={formatCurrency(data.totalRevenue)} icon='tabler-currency-euro' color='primary' loading={loading}
+      <KpiCard title='Total Sell' value={formatCurrency(data.totalRevenue)} icon='tabler-currency-rupee' color='primary' loading={loading}
         trend={{ value: '+12.5%', direction: 'up' }} />
-      <KpiCard title='VAT Collection' value={formatCurrency(data.totalTax)} icon='tabler-building' color='warning' loading={loading} />
-      <KpiCard title='Net Total Sell' value={formatCurrency(data.totalRevenue - data.totalTax)} icon='tabler-receipt' color='success' loading={loading} subtitle='After VAT'
+      <KpiCard title='GST Collection' value={formatCurrency(data.totalTax)} icon='tabler-building' color='warning' loading={loading} />
+      <KpiCard title='Net Total Sell' value={formatCurrency(data.totalRevenue - data.totalTax)} icon='tabler-receipt' color='success' loading={loading} subtitle='After GST'
         trend={{ value: '+5.2%', direction: 'up' }} />
       <KpiCard title='Avg Order Value' value={formatCurrency(data.averageOrderValue)} icon='tabler-calculator' color='warning' loading={loading}
         trend={{ value: '+3.8%', direction: 'up' }} />

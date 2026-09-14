@@ -180,7 +180,7 @@ return [{
         <KpiCard title='Expiring Soon' value={formatNumber(dashboard?.expiringSoonCount ?? 0)} icon='tabler-calendar-exclamation' color='warning' loading={loading['dashboard']} />
         <KpiCard title='Monthly Purchases' value={formatNumber(dashboard?.monthlyPurchaseItems ?? 0)} icon='tabler-shopping-cart-plus' color='success' loading={loading['dashboard']} />
         <KpiCard title='Purchase Qty' value={formatNumber(dashboard?.monthlyPurchaseQuantity ?? 0)} icon='tabler-scale' color='primary' loading={loading['dashboard']} />
-        <KpiCard title='Monthly Revenue' value={formatCurrency(dashboard?.monthlyRevenue ?? 0)} icon='tabler-currency-euro' color='success' loading={loading['dashboard']} />
+        <KpiCard title='Monthly Revenue' value={formatCurrency(dashboard?.monthlyRevenue ?? 0)} icon='tabler-currency-rupee' color='success' loading={loading['dashboard']} />
         <KpiCard title='Est. Food Cost' value={formatCurrency(dashboard?.estimatedFoodCost ?? 0)} icon='tabler-receipt' color='warning' loading={loading['dashboard']} />
         <KpiCard title='Food Cost %' value={dashboard ? `${dashboard.foodCostPercent}%` : '-'} icon='tabler-percentage' color='primary' loading={loading['dashboard']} />
       </div>

@@ -129,7 +129,7 @@ const PaymentMethodsChart = ({ paymentMethods }: PaymentMethodsChartProps) => {
               ) : (
                 <>
                   <Typography variant='h5' fontWeight={700} sx={{ lineHeight: 1.1 }}>
-                    €{chartData.grandTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    ₹{chartData.grandTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                   </Typography>
                   <Typography variant='caption' color='text.disabled'>Total</Typography>
                 </>
@@ -158,7 +158,7 @@ const PaymentMethodsChart = ({ paymentMethods }: PaymentMethodsChartProps) => {
                   <Typography variant='body2' fontWeight={hoveredIdx === i ? 700 : 500}>{arc.label}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <Typography variant='body2' fontWeight={600}>€{arc.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}</Typography>
+                  <Typography variant='body2' fontWeight={600}>₹{arc.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}</Typography>
                   <Typography variant='caption' color='text.disabled' sx={{ minWidth: 36, textAlign: 'right' }}>
                     {(arc.pct * 100).toFixed(1)}%
                   </Typography>

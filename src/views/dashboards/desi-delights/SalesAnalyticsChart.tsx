@@ -10,7 +10,7 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 
-type Metric = 'revenue' | 'orders' | 'netCollection' | 'vat'
+type Metric = 'revenue' | 'orders' | 'netCollection' | 'gst'
 type Granularity = 'daily' | 'weekly' | 'monthly'
 
 interface SalesAnalyticsChartProps {
@@ -22,7 +22,7 @@ interface SalesAnalyticsChartProps {
 const METRICS: { value: Metric; label: string }[] = [
   { value: 'revenue', label: 'Revenue' },
   { value: 'netCollection', label: 'Net Collection' },
-  { value: 'vat', label: 'VAT' },
+  { value: 'gst', label: 'GST' },
   { value: 'orders', label: 'Orders' }
 ]
 
@@ -40,8 +40,8 @@ function getMetricValue(d: any, metric: Metric) {
       return d.orderCount || d.orders || 0
     case 'netCollection':
       return (d.revenue || 0) - (d.discounts || 0)
-    case 'vat':
-      return d.tax || d.vat || 0
+    case 'gst':
+      return d.tax || d.gst || 0
     default:
       return d.revenue || 0
   }
@@ -110,10 +110,10 @@ function aggregateData(data: any[], granularity: Granularity, metric: Metric) {
 
 function formatValue(val: number, isCurrency: boolean) {
   if (!isCurrency) return Math.round(val).toLocaleString()
-  if (val >= 1000000) return `€${(val / 1000000).toFixed(1)}M`
-  if (val >= 1000) return `€${(val / 1000).toFixed(1)}K`
+  if (val >= 1000000) return `₹${(val / 1000000).toFixed(1)}M`
+  if (val >= 1000) return `₹${(val / 1000).toFixed(1)}K`
 
-  return `€${val.toFixed(2)}`
+  return `₹${val.toFixed(2)}`
 }
 
 const SalesAnalyticsChart = ({ dailySales, revenueTrend }: SalesAnalyticsChartProps) => {

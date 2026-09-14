@@ -127,7 +127,7 @@ const OrderReports = () => {
                         <TableRow key={order.id}>
                           <TableCell>{order.id}</TableCell>
                           <TableCell>{order.status}</TableCell>
-                          <TableCell align='right'>€{order.totalAmount.toFixed(2)}</TableCell>
+                          <TableCell align='right'>₹{order.totalAmount.toFixed(2)}</TableCell>
                           <TableCell>{order.paymentStatus}</TableCell>
                           <TableCell>{order.orderType}</TableCell>
                         </TableRow>

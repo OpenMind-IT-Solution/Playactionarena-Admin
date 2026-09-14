@@ -348,12 +348,12 @@ const MenuTable = () => {
         header: 'Total price',
         cell: ({ row }) => {
           const originalPrice = row.original.price
-          const vatRate = row.original.vatRate ?? 12
-          const totalPrice = Math.round(originalPrice * (1 + vatRate / 100) * 100) / 100
+          const gstRate = row.original.gstRate ?? 5
+          const totalPrice = Math.round(originalPrice * (1 + gstRate / 100) * 100) / 100
           const offerPercentage = parseFloat(row.original.offer || '0')
 
           if (offerPercentage <= 0) {
-            return <Typography>€{totalPrice}</Typography>
+            return <Typography>₹{totalPrice}</Typography>
           }
 
           const finalPrice = Math.round(totalPrice * (1 - offerPercentage / 100))
@@ -362,7 +362,7 @@ const MenuTable = () => {
             <div className='flex items-center gap-3'>
               <div style={{ position: 'relative', display: 'inline-block' }}>
                 <Typography component='span' color='text.secondary'>
-                  €{originalPrice}
+                  ₹{originalPrice}
                 </Typography>
                 <span
                   style={{
@@ -378,7 +378,7 @@ const MenuTable = () => {
               </div>
 
               <Typography component='span' color='text.primary' className='font-medium'>
-                €{finalPrice}
+                ₹{finalPrice}
               </Typography>
             </div>
           )

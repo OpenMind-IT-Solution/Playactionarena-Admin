@@ -52,7 +52,7 @@ return [
     <>
       <ReportFilters onApply={r => { applyRange(r) }} loading={loading} />
       <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6'>
-        <KpiCard title='Total Revenue' value={formatCurrency(data?.totalRevenue ?? 0)} icon='tabler-currency-euro' color='primary' />
+        <KpiCard title='Total Revenue' value={formatCurrency(data?.totalRevenue ?? 0)} icon='tabler-currency-rupee' color='primary' />
         <KpiCard title='Total Orders' value={formatNumber(data?.totalOrders ?? 0)} icon='tabler-shopping-cart' color='info' />
         <KpiCard title='Items Sold' value={formatNumber(data?.totalItemsSold ?? 0)} icon='tabler-box' color='success' />
         <KpiCard title='Est. Food Cost' value={formatCurrency(data?.estimatedFoodCost ?? 0)} icon='tabler-receipt' color='warning' />

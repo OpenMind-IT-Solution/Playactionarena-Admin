@@ -33,7 +33,7 @@ const KPICardGrid = ({ salesSummary, prevSalesSummary, customerAnalytics }: KPIC
       {
         title: 'Total Sales',
         value: totalSales,
-        prefix: '€',
+        prefix: '₹',
         icon: 'tabler-cash',
         color: 'primary',
         change: calcChange(totalSales, prevTotalSales)
@@ -41,15 +41,15 @@ const KPICardGrid = ({ salesSummary, prevSalesSummary, customerAnalytics }: KPIC
       {
         title: 'Net Collection',
         value: netCollection,
-        prefix: '€',
+        prefix: '₹',
         icon: 'tabler-wallet',
         color: 'success',
         change: calcChange(netCollection, prevNetCollection)
       },
       {
-        title: 'VAT Collection',
+        title: 'GST Collection',
         value: totalTax,
-        prefix: '€',
+        prefix: '₹',
         icon: 'tabler-receipt',
         color: 'warning',
         change: calcChange(totalTax, prevTotalTax)

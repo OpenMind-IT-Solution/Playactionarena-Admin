@@ -44,7 +44,7 @@ const RefundReports = () => {
         <>
           <div className='flex flex-wrap md:flex-nowrap gap-4 mb-4'>
             <StatCard className='w-full md:w-1/4' title='Total Refunds' value={data.totalRefunds} icon='tabler-refresh' color='primary' isSelected={false} onClick={() => {}} />
-            <StatCard className='w-full md:w-1/4' title='Total Refund Amount' value={data.totalRefundAmount} icon='tabler-currency-euro' color='error' isSelected={false} onClick={() => {}} />
+            <StatCard className='w-full md:w-1/4' title='Total Refund Amount' value={data.totalRefundAmount} icon='tabler-currency-rupee' color='error' isSelected={false} onClick={() => {}} />
           </div>
           {data.statusBreakdown && Object.keys(data.statusBreakdown).length > 0 && (
             <Grid container spacing={4} sx={{ mb: 4 }}>

@@ -3,7 +3,7 @@ export type Category = {
   description: string
   name: string
   status: string
-  vatRate?: number
+  gstRate?: number
 }
 
 export type CategoryTypes = {

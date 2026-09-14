@@ -168,7 +168,7 @@ const RecentOrdersTable = ({ orders }: RecentOrdersTableProps) => {
                   </TableCell>
                   <TableCell>
                     <Typography variant='body2' fontWeight={600}>
-                      €{Number(order.totalAmount || 0).toFixed(2)}
+                      ₹{Number(order.totalAmount || 0).toFixed(2)}
                     </Typography>
                   </TableCell>
                   <TableCell>

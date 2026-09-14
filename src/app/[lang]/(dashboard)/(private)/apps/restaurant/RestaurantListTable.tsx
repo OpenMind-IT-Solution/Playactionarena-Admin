@@ -148,15 +148,7 @@ const RestaurantListTable = () => {
           address: r.address,
           phoneNumber: r.phoneNumber,
           website: r.website,
-          vatNumber: r.vatNumber,
-          posId: r.posId,
-          rel: r.rel,
-          terminal: r.terminal,
-          pluHash: r.pluHash,
-          ticketTeller: r.ticketTeller,
-          ticketSignature: r.ticketSignature,
-          controlModuleId: r.controlModuleId,
-          vatCardId: r.vatCardId,
+          gstin: r.gstin,
           description: r.description,
           status: r.status ? 'active' : 'inactive'
         })) || []

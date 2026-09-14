@@ -36,15 +36,7 @@ type FormData = {
   phoneNumber: string
   email: string
   website: string
-  vatNumber: string
-  posId: string
-  rel: string
-  terminal: string
-  pluHash: string
-  ticketTeller: string
-  ticketSignature: string
-  controlModuleId: string
-  vatCardId: string
+  gstin: string
   description: string
   status: 'active' | 'inactive' | 'pending' | string
 }
@@ -69,15 +61,7 @@ const AddRestaurantDrawer = (props: Props) => {
       phoneNumber: '',
       email: '',
       website: '',
-      vatNumber: '',
-      posId: '',
-      rel: '',
-      terminal: '',
-      pluHash: '',
-      ticketTeller: '',
-      ticketSignature: '',
-      controlModuleId: '',
-      vatCardId: '',
+      gstin: '',
       description: '',
       status: 'active'
     }
@@ -92,15 +76,7 @@ const AddRestaurantDrawer = (props: Props) => {
         phoneNumber: restaurantToEdit?.phoneNumber ?? '',
         email: restaurantToEdit?.email ?? '',
         website: restaurantToEdit?.website ?? '',
-        vatNumber: restaurantToEdit?.vatNumber ?? '',
-        posId: restaurantToEdit?.posId ?? '',
-        rel: restaurantToEdit?.rel ?? '',
-        terminal: restaurantToEdit?.terminal ?? '',
-        pluHash: restaurantToEdit?.pluHash ?? '',
-        ticketTeller: restaurantToEdit?.ticketTeller ?? '',
-        ticketSignature: restaurantToEdit?.ticketSignature ?? '',
-        controlModuleId: restaurantToEdit?.controlModuleId ?? '',
-        vatCardId: restaurantToEdit?.vatCardId ?? '',
+        gstin: restaurantToEdit?.gstin ?? '',
         description: restaurantToEdit?.description ?? '',
         status: restaurantToEdit?.status ?? 'active'
       })
@@ -120,15 +96,7 @@ const AddRestaurantDrawer = (props: Props) => {
         phoneNumber: data.phoneNumber,
         email: data.email,
         website: data.website || null,
-        vatNumber: data.vatNumber || null,
-        posId: data.posId || null,
-        rel: data.rel || null,
-        terminal: data.terminal || null,
-        pluHash: data.pluHash || null,
-        ticketTeller: data.ticketTeller || null,
-        ticketSignature: data.ticketSignature || null,
-        controlModuleId: data.controlModuleId || null,
-        vatCardId: data.vatCardId || null,
+        gstin: data.gstin || null,
         description: data.description,
         status: data.status === 'active' // Convert status to boolean
       }
@@ -165,15 +133,7 @@ const AddRestaurantDrawer = (props: Props) => {
       phoneNumber: '',
       email: '',
       website: '',
-      vatNumber: '',
-      posId: '',
-      rel: '',
-      terminal: '',
-      pluHash: '',
-      ticketTeller: '',
-      ticketSignature: '',
-      controlModuleId: '',
-      vatCardId: '',
+      gstin: '',
       description: '',
       status: 'active'
     })
@@ -268,83 +228,15 @@ const AddRestaurantDrawer = (props: Props) => {
           />
 
           <Controller
-            name='vatNumber'
+            name='gstin'
             control={control}
             render={({ field }) => (
               <CustomTextField
                 {...field}
                 fullWidth
-                label='VAT Number'
-                placeholder='BE0123.456.789'
+                label='GSTIN'
+                placeholder='27ABCDE1234F1Z5'
               />
-            )}
-          />
-
-          <Typography variant='subtitle2' sx={{ mt: 1 }}>
-            Fiscal / Legal Footer (BTW-KASTICKET)
-          </Typography>
-
-          <Controller
-            name='posId'
-            control={control}
-            render={({ field }) => (
-              <CustomTextField {...field} fullWidth label='POS ID' placeholder='AQU00045903482' />
-            )}
-          />
-
-          <Controller
-            name='rel'
-            control={control}
-            render={({ field }) => (
-              <CustomTextField {...field} fullWidth label='Rel' placeholder='QT240115BE' />
-            )}
-          />
-
-          <Controller
-            name='terminal'
-            control={control}
-            render={({ field }) => (
-              <CustomTextField {...field} fullWidth label='Terminal' placeholder='1 - 70:4A:0E:E1:5B:14' />
-            )}
-          />
-
-          <Controller
-            name='pluHash'
-            control={control}
-            render={({ field }) => (
-              <CustomTextField {...field} fullWidth label='PLU-Hash' placeholder='8934247F' />
-            )}
-          />
-
-          <Controller
-            name='ticketTeller'
-            control={control}
-            render={({ field }) => (
-              <CustomTextField {...field} fullWidth label='Ticket teller' placeholder='90411/90838 NS' />
-            )}
-          />
-
-          <Controller
-            name='ticketSignature'
-            control={control}
-            render={({ field }) => (
-              <CustomTextField {...field} fullWidth label='Ticket handtekening' placeholder='5B16097DB3EED508244627831C7A909AAE4F2E99' />
-            )}
-          />
-
-          <Controller
-            name='controlModuleId'
-            control={control}
-            render={({ field }) => (
-              <CustomTextField {...field} fullWidth label='Controlemodule-id' placeholder='BMC05056482' />
-            )}
-          />
-
-          <Controller
-            name='vatCardId'
-            control={control}
-            render={({ field }) => (
-              <CustomTextField {...field} fullWidth label='VAT signing card-id' placeholder='0889732894-001' />
             )}
           />
 

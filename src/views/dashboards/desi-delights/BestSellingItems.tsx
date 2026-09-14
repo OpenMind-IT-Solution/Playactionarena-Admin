@@ -95,7 +95,7 @@ const BestSellingItems = ({ items }: BestSellingItemsProps) => {
                 </Box>
                 <Box sx={{ textAlign: 'right', minWidth: 80 }}>
                   <Typography variant='body2' fontWeight={700}>
-                    €{(item.totalRevenue || 0).toFixed(2)}
+                    ₹{(item.totalRevenue || 0).toFixed(2)}
                   </Typography>
                   <Box sx={{ mt: 0.5, width: 80 }}>
                     <LinearProgress

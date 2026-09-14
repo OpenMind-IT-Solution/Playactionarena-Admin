@@ -71,7 +71,7 @@ const CategoryPerformanceChart = ({ categoryPerformance, categorySales }: Catego
         }
         subheader={
           <Typography variant='caption' color='text.secondary'>
-            {catNames.length} categories · Total €{totalRev.toLocaleString()}
+            {catNames.length} categories · Total ₹{totalRev.toLocaleString()}
           </Typography>
         }
       />
@@ -92,7 +92,7 @@ const CategoryPerformanceChart = ({ categoryPerformance, categorySales }: Catego
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Typography variant='caption' color='text.secondary'>{qty} sold</Typography>
-                    <Typography variant='body2' fontWeight={700}>€{rev.toLocaleString()}</Typography>
+                    <Typography variant='body2' fontWeight={700}>₹{rev.toLocaleString()}</Typography>
                     <Typography variant='caption' color='text.secondary' sx={{ minWidth: 40, textAlign: 'right' }}>
                       {share.toFixed(1)}%
                     </Typography>

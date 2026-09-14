@@ -56,7 +56,7 @@ import { getImageUrl } from '@/utils/getImageUrl'
 import ReceiptDialog from '@/components/dialogs/receipt-dialog/ReceiptDialog'
 import type { ReceiptDialogHandle } from '@/components/dialogs/receipt-dialog/ReceiptDialog'
 
-const DEFAULT_VAT_RATE = 0.12
+const DEFAULT_GST_RATE = 0.05
 
 const Pos = () => {
   // Session
@@ -222,20 +222,20 @@ const Pos = () => {
   // Get active categories for filter
   const activeCategories = categories.filter(cat => cat.status === 'active')
 
-  // Calculate order summary with VAT
+  // Calculate order summary with GST (split evenly into CGST + SGST per rate bracket)
   const subtotal = cart.reduce((sum, item) => sum + item.total, 0)
 
-  const vatByRate: Record<number, number> = {}
+  const gstByRate: Record<number, number> = {}
 
-  const vatTotal = cart.reduce((sum, item) => {
+  const gstTotal = cart.reduce((sum, item) => {
     const menuItem = menuItems.find(m => m.id === item.id)
-    const rate = menuItem?.vatRate != null ? menuItem.vatRate / 100 : DEFAULT_VAT_RATE
-    const vat = item.total * rate
+    const rate = menuItem?.gstRate != null ? menuItem.gstRate / 100 : DEFAULT_GST_RATE
+    const gst = item.total * rate
     const pct = Math.round(rate * 100)
 
-    vatByRate[pct] = (vatByRate[pct] || 0) + vat
+    gstByRate[pct] = (gstByRate[pct] || 0) + gst
 
-    return sum + vat
+    return sum + gst
   }, 0)
 
   const orderSummary: OrderSummary = {
@@ -243,10 +243,10 @@ const Pos = () => {
     subtotal,
     foodSubtotal: subtotal,
     drinksSubtotal: 0,
-    foodVat: vatTotal,
-    drinksVat: 0,
-    vatTotal,
-    total: subtotal + vatTotal
+    foodGst: gstTotal,
+    drinksGst: 0,
+    gstTotal,
+    total: subtotal + gstTotal
   }
 
   // Add item to cart
@@ -379,7 +379,7 @@ const Pos = () => {
             price: item.price
           })),
           subtotal: orderSummary.subtotal,
-          tax: orderSummary.vatTotal,
+          tax: orderSummary.gstTotal,
           total: orderSummary.total,
           customerName: customerName.trim() || undefined,
           customerPhone: customerPhone.trim() || undefined,
@@ -436,7 +436,7 @@ const Pos = () => {
           price: item.price
         })),
         subtotal: orderSummary.subtotal,
-        tax: orderSummary.vatTotal,
+        tax: orderSummary.gstTotal,
         total: orderSummary.total,
         customerName: customerName.trim() || undefined,
         customerPhone: customerPhone.trim() || undefined,
@@ -604,7 +604,7 @@ const Pos = () => {
                           {item.name}
                         </Typography>
                         <Typography variant='h6' color='primary'>
-                          €{(item.price * (1 + ((item.vatRate ?? 12) / 100))).toFixed(2)}
+                          ₹{(item.price * (1 + ((item.gstRate ?? 5) / 100))).toFixed(2)}
                         </Typography>
                       </Box>
                       <Typography variant='body2' color='text.secondary' sx={{ mb: 1, height: 40, overflow: 'hidden' }}>
@@ -643,7 +643,7 @@ const Pos = () => {
                 <List>
                   {cart.map(item => (
                     <ListItem key={item.id} sx={{ px: 0 }}>
-                      <ListItemText primary={item.name} secondary={`€${item.price.toFixed(2)} x ${item.quantity}`} />
+                      <ListItemText primary={item.name} secondary={`₹${item.price.toFixed(2)} x ${item.quantity}`} />
                       <ListItemSecondaryAction>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <IconButton size='small' onClick={() => removeFromCart(item.id)}>
@@ -673,18 +673,26 @@ const Pos = () => {
                 <Divider sx={{ my: 2 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography>Subtotal:</Typography>
-                  <Typography>€{orderSummary.subtotal.toFixed(2)}</Typography>
+                  <Typography>₹{orderSummary.subtotal.toFixed(2)}</Typography>
                 </Box>
-                {Object.entries(vatByRate).map(([rate, vat]) => (
-                  <Box key={rate} sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                    <Typography variant='body2' color='text.secondary'>VAT {rate}%{rate === '12' ? ' (Food)' : ' (Drink)'}:</Typography>
-                    <Typography variant='body2' color='text.secondary'>€{vat.toFixed(2)}</Typography>
-                  </Box>
-                ))}
+                {Object.entries(gstByRate).flatMap(([rate, gst]) => {
+                  const halfRate = (Number(rate) / 2).toFixed(1)
+
+                  return [
+                    <Box key={`${rate}-cgst`} sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Typography variant='body2' color='text.secondary'>CGST {halfRate}%:</Typography>
+                      <Typography variant='body2' color='text.secondary'>₹{(gst / 2).toFixed(2)}</Typography>
+                    </Box>,
+                    <Box key={`${rate}-sgst`} sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Typography variant='body2' color='text.secondary'>SGST {halfRate}%:</Typography>
+                      <Typography variant='body2' color='text.secondary'>₹{(gst / 2).toFixed(2)}</Typography>
+                    </Box>
+                  ]
+                })}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                   <Typography variant='h6'>Total:</Typography>
                   <Typography variant='h6' color='primary'>
-                    €{orderSummary.total.toFixed(2)}
+                    ₹{orderSummary.total.toFixed(2)}
                   </Typography>
                 </Box>
 
@@ -706,7 +714,7 @@ const Pos = () => {
                       </MenuItem>
                       {availableCoupons.map((c: any) => (
                         <MenuItem key={c.id} value={c.code}>
-                          {c.code} {c.type === 'percentage' ? `(${c.discount}%)` : `(€${c.discount})`}
+                          {c.code} {c.type === 'percentage' ? `(${c.discount}%)` : `(₹${c.discount})`}
                         </MenuItem>
                       ))}
                     </CustomTextField>
@@ -723,7 +731,7 @@ const Pos = () => {
                   {discountAmount > 0 && !couponLoading && (
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Typography variant='body2' color='success.main'>Discount:</Typography>
-                      <Typography variant='body2' color='success.main'>-€{discountAmount.toFixed(2)}</Typography>
+                      <Typography variant='body2' color='success.main'>-₹{discountAmount.toFixed(2)}</Typography>
                     </Box>
                   )}
                 </Box>
@@ -756,15 +764,15 @@ const Pos = () => {
             name: item.name,
             quantity: item.quantity,
             total: item.total,
-            vatRate: menuItem?.vatRate ?? 12,
+            gstRate: menuItem?.gstRate ?? 5,
             addons: item.addons
           }
         })}
         subtotal={orderSummary.subtotal}
-        vatByRate={Object.fromEntries(
-          Object.entries(vatByRate).map(([k, v]) => [k, v])
+        gstByRate={Object.fromEntries(
+          Object.entries(gstByRate).map(([k, v]) => [k, v])
         )}
-        vatTotal={orderSummary.vatTotal}
+        gstTotal={orderSummary.gstTotal}
         total={orderSummary.total}
         grandTotal={Math.max(0, orderSummary.total - discountAmount)}
         discountAmount={discountAmount}
