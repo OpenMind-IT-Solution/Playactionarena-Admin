@@ -162,10 +162,12 @@ const AddMenuItemDrawer = (props: Props) => {
 
       setFiles(existingImages)
       setTotalPriceInput(Math.round(itemToEdit.price * (1 + ((itemToEdit.gstRate ?? 5) / 100)) * 10000) / 10000)
+      setItemPriceInput(itemToEdit.price || 0)
     } else {
       resetForm()
       setFiles([])
       setTotalPriceInput(0)
+      setItemPriceInput(0)
     }
   }, [itemToEdit, open, resetForm])
 
@@ -174,28 +176,46 @@ const AddMenuItemDrawer = (props: Props) => {
   }
 
   const [totalPriceInput, setTotalPriceInput] = useState<number>(0)
+  const [itemPriceInput, setItemPriceInput] = useState<number>(0)
   const watchedGstRate = watch('gstRate')
 
-  const computedPrice = totalPriceInput > 0
-    ? Math.round(
-        watchedGstRate === 0
-          ? totalPriceInput
-          : totalPriceInput / (1 + (watchedGstRate ?? 0) / 100) * 10000
-      ) / 10000
-    : 0
+  const computeTotalFromBase = (base: number, gstRate: number) => {
+    const g = gstRate || 0
 
+    return Math.round(base * (1 + g / 100) * 10000) / 10000
+  }
+
+  const computeBaseFromTotal = (total: number, gstRate: number) => {
+    const g = gstRate || 0
+
+    return Math.round((g === 0 ? total : total / (1 + g / 100)) * 10000) / 10000
+  }
+
+  // Editing Item price sets the base (pre-GST) price and recalculates Total price
+  const handleItemPriceChange = (value: number) => {
+    setItemPriceInput(value)
+
+    if (value > 0) {
+      setValue('price', value)
+      setTotalPriceInput(computeTotalFromBase(value, watchedGstRate ?? 0))
+    } else {
+      setValue('price', 0)
+      setTotalPriceInput(0)
+    }
+  }
+
+  // Editing Total price (GST-inclusive) recalculates the base Item price
   const handleTotalPriceChange = (value: number) => {
     setTotalPriceInput(value)
 
     if (value > 0) {
-      const normalizedGstRate = watchedGstRate ?? 0
+      const base = computeBaseFromTotal(value, watchedGstRate ?? 0)
 
-      setValue(
-        'price',
-        Math.round(
-          normalizedGstRate === 0 ? value : value / (1 + normalizedGstRate / 100) * 10000
-        ) / 10000
-      )
+      setItemPriceInput(base)
+      setValue('price', base)
+    } else {
+      setValue('price', 0)
+      setItemPriceInput(0)
     }
   }
 
@@ -274,6 +294,7 @@ const AddMenuItemDrawer = (props: Props) => {
     handleClose()
     setFiles([])
     setTotalPriceInput(0)
+    setItemPriceInput(0)
     resetForm({
       id: 0,
       name: '',
@@ -327,8 +348,8 @@ const AddMenuItemDrawer = (props: Props) => {
                     if (cat?.gstRate != null) {
                       setValue('gstRate', cat.gstRate)
 
-                      if (totalPriceInput > 0) {
-                        setValue('price', Math.round(totalPriceInput / (1 + cat.gstRate / 100) * 10000) / 10000)
+                      if (itemPriceInput > 0) {
+                        setTotalPriceInput(Math.round(itemPriceInput * (1 + cat.gstRate / 100) * 10000) / 10000)
                       }
                     }
                   }
@@ -391,8 +412,10 @@ const AddMenuItemDrawer = (props: Props) => {
                 fullWidth
                 type='number'
                 label='Item price'
-                value={computedPrice > 0 ? computedPrice.toFixed(2) : (field.value || 0).toFixed(2)}
-                InputProps={{ readOnly: true }}
+                placeholder='0'
+                value={itemPriceInput || ''}
+                onChange={e => handleItemPriceChange(Number(e.target.value))}
+                helperText='Inclusive of GST is auto-calculated in Total price.'
                 {...(errors.price && { error: true, helperText: 'Price must be a positive number.' })}
               />
             )}
@@ -411,8 +434,8 @@ const AddMenuItemDrawer = (props: Props) => {
                 onChange={e => {
                   field.onChange(Number(e.target.value))
 
-                  if (totalPriceInput > 0) {
-                    setValue('price', Math.round(totalPriceInput / (1 + Number(e.target.value) / 100) * 10000) / 10000)
+                  if (itemPriceInput > 0) {
+                    setTotalPriceInput(Math.round(itemPriceInput * (1 + Number(e.target.value) / 100) * 10000) / 10000)
                   }
                 }}
                 {...(errors.gstRate

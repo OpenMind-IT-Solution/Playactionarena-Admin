@@ -188,7 +188,7 @@ const RecentOrdersTable = ({ orders }: RecentOrdersTableProps) => {
                     <Typography variant='caption' color='text.disabled' sx={{ whiteSpace: 'nowrap' }}>
                       {order.createdAt
                         ? new Date(order.createdAt).toLocaleString('en-GB', {
-                            timeZone: 'Europe/Brussels',
+                            timeZone: 'Asia/Kolkata',
                             day: '2-digit',
                             month: 'short',
                             hour: '2-digit',

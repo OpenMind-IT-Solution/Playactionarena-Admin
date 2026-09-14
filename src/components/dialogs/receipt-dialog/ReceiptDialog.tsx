@@ -381,6 +381,7 @@ const buildPrintDocument = (receiptHtml: string): string => `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Action Arena - Receipt</title>
 <style>
   @page { size: 80mm 297mm; margin: 0; }
@@ -391,8 +392,22 @@ const buildPrintDocument = (receiptHtml: string): string => `<!DOCTYPE html>
   .dd-print-actions { display: flex; justify-content: center; gap: 10px; padding: 18px 0 28px; }
   .dd-print-actions button { padding: 10px 28px; border-radius: 6px; border: 1px solid #ccc; background: #fff; font-size: 14px; font-family: system-ui, -apple-system, sans-serif; cursor: pointer; }
   .dd-print-actions .primary { background: #1976d2; color: #fff; border-color: #1976d2; }
+  /* On tablets/iPads the 80mm receipt is otherwise too small to read on screen.
+     Zoom the preview so it scales up responsively; printing still uses 80mm. */
+  @media screen {
+    .dd-page { min-height: 100vh; justify-content: center; padding: 16px 0 28px; }
+    .dd-receipt { box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+    @media (min-width: 684px) {
+      .dd-receipt { zoom: 1.8; }
+    }
+    @media (max-width: 683px) {
+      .dd-receipt { zoom: 1.3; }
+    }
+  }
   @media print {
     body { background: #fff; }
+    .dd-page { min-height: auto; padding: 0; }
+    .dd-receipt { width: 80mm; max-width: 80mm; zoom: 1; box-shadow: none; }
     .dd-print-actions { display: none !important; }
   }
 </style>
@@ -406,11 +421,14 @@ const buildPrintDocument = (receiptHtml: string): string => `<!DOCTYPE html>
     </div>
   </div>
   <script>
-    // Fit the page height to the receipt so Print produces one page
+    // Fit the page height to the receipt so Print produces one page.
+    // getBoundingClientRect().height already includes the preview zoom, so divide
+    // by the zoom factor to recover the true printed height in CSS px.
     window.addEventListener('load', function () {
       var el = document.getElementById('dd-receipt')
       if (!el) return
-      var heightMm = Math.ceil((el.getBoundingClientRect().height / 96) * 25.4 + 1)
+      var zoom = parseFloat(getComputedStyle(el).zoom) || 1
+      var heightMm = Math.ceil((el.getBoundingClientRect().height / zoom / 96) * 25.4 + 1)
       var style = document.createElement('style')
       style.innerHTML = '@page { size: 80mm ' + heightMm + 'mm; margin: 0; }'
       document.head.appendChild(style)
