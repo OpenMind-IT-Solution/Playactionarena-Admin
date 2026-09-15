@@ -95,7 +95,7 @@ const CategoryManagementView = () => {
           name: cat.name,
           description: cat.description,
           status: cat.status ? 'active' : 'inactive',
-          ...(cat.vatRate !== undefined && { vatRate: cat.vatRate })
+          ...(cat.gstRate !== undefined && { gstRate: cat.gstRate })
         })) || []
 
       setData(categoryData)
@@ -148,7 +148,7 @@ const CategoryManagementView = () => {
           name: result.data.name,
           description: result.data.description,
           status: result.data.status ? 'active' : 'inactive',
-          ...(result.data.vatRate !== undefined && { vatRate: result.data.vatRate })
+          ...(result.data.gstRate !== undefined && { gstRate: result.data.gstRate })
         }
 
         setSelectedCategory(categoryDetails)
@@ -179,8 +179,8 @@ const CategoryManagementView = () => {
       status: formData.status === 'active'
     }
 
-    if (formData.vatRate !== undefined) {
-      body.vatRate = formData.vatRate
+    if (formData.gstRate !== undefined) {
+      body.gstRate = formData.gstRate
     }
 
     try {

@@ -368,7 +368,7 @@ const LocationSettings: React.FC = () => {
                         name='charge'
                         variant='outlined'
                         sx={{ mb: 4 }}
-                        InputProps={{ startAdornment: <InputAdornment position='start'>€</InputAdornment> }}
+                        InputProps={{ startAdornment: <InputAdornment position='start'>₹</InputAdornment> }}
                         type='number'
                         value={formValues.charge}
                         onChange={handleFormChange}
@@ -454,7 +454,7 @@ const LocationSettings: React.FC = () => {
                                 sx={{ mr: 2, height: '20px' }}
                               />
                               <Typography component='span' variant='body2' color='text.secondary'>
-                                Charge: €{zone.charge.toFixed(2)}
+                                Charge: ₹{zone.charge.toFixed(2)}
                               </Typography>
                             </Box>
                           }

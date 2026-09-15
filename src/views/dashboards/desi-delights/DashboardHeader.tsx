@@ -45,13 +45,13 @@ const DashboardHeader = () => {
     setRestaurants
   } = useDashboardContext()
 
-  const [belgiumTime, setBelgiumTime] = useState('')
+  const [istTime, setIstTime] = useState('')
 
   useEffect(() => {
     const update = () => {
-      setBelgiumTime(
+      setIstTime(
         new Date().toLocaleString('en-GB', {
-          timeZone: 'Europe/Brussels',
+          timeZone: 'Asia/Kolkata',
           weekday: 'long',
           year: 'numeric',
           month: 'long',
@@ -115,7 +115,7 @@ const DashboardHeader = () => {
               {`Welcome back, ${session?.user?.name || 'Admin'}! Here\u2019s what\u2019s happening today.`}
             </Typography>
             <Typography variant='caption' color='primary' sx={{ mt: 0.5, display: 'block' }}>
-              {belgiumTime} (Brussels Time)
+              {istTime} (Indian Standard Time)
             </Typography>
           </Box>
 

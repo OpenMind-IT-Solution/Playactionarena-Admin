@@ -77,7 +77,7 @@ const InventoryReports = () => {
           className='w-full md:w-1/4'
           title='Estimated Food Cost'
           value={data?.estimatedFoodCost ?? 0}
-          icon='tabler-currency-euro'
+          icon='tabler-currency-rupee'
           color='success'
           isSelected={false}
           onClick={() => {}}

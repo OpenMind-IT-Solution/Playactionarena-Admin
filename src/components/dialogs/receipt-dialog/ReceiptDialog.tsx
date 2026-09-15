@@ -23,7 +23,7 @@ export interface ReceiptItem {
   name: string
   quantity: number
   total: number
-  vatRate?: number
+  gstRate?: number
   addons?: { name: string; price: number }[]
 }
 
@@ -34,15 +34,7 @@ export interface ReceiptRestaurant {
   city?: string
   phoneNumber?: string
   website?: string
-  vatNumber?: string
-  posId?: string
-  rel?: string
-  terminal?: string
-  pluHash?: string
-  ticketTeller?: string
-  ticketSignature?: string
-  controlModuleId?: string
-  vatCardId?: string
+  gstin?: string
 }
 
 export interface ReceiptDialogHandle {
@@ -55,8 +47,8 @@ interface ReceiptDialogProps {
   orderNumber: number | string | null
   items: ReceiptItem[]
   subtotal: number
-  vatByRate?: Record<string, number>
-  vatTotal?: number
+  gstByRate?: Record<string, number>
+  gstTotal?: number
   total: number
   grandTotal?: number
   discountAmount?: number
@@ -96,8 +88,8 @@ interface ReceiptRenderOptions {
   createdAt?: string | Date | null
   items: ReceiptItem[]
   subtotal: number
-  vatByRate?: Record<string, number>
-  vatTotal?: number
+  gstByRate?: Record<string, number>
+  gstTotal?: number
   total: number
   grandTotal?: number
   discountAmount?: number
@@ -121,19 +113,11 @@ const THEMES: Record<ReceiptTheme, { width: string; fontSize: number; small: num
   print: { width: '72mm', fontSize: 11, small: 9, qtyW: 24, priceW: 62, labelW: 92, sep: 5, star: 40 }
 }
 
-// Fallbacks so the receipt always shows the store details + Belgian fiscal footer,
+// Fallback so the receipt always shows at least a store name,
 // even when the live database hasn't been seeded with these values.
 const DEFAULT_RESTAURANT = {
-  address: 'Rue de Genève 470D, 1030 Schaerbeek, Belgium',
-  phoneNumber: '+32 456 86 34 96',
-  posId: 'AQU00045903482',
-  rel: 'QT240115BE',
-  terminal: '1 - 70:4A:0E:E1:5B:14',
-  pluHash: '8934247F',
-  ticketTeller: '90411/90838 NS',
-  ticketSignature: '5B16097DB3EED508244627831C7A909AAE4F2E99',
-  controlModuleId: 'BMC05056482',
-  vatCardId: '0889732894-001'
+  name: 'Action Arena',
+  tagline: 'Quick Bites, Happy Vibes'
 }
 
 const esc = (value: unknown) =>
@@ -143,8 +127,8 @@ const esc = (value: unknown) =>
     return map[char] ?? char
   })
 
-// Two-decimal euro format (decimal point), always with the euro sign
-const money = (value: number) => `€${value.toFixed(2)}`
+// Two-decimal rupee format (decimal point), always with the rupee sign
+const money = (value: number) => `₹${value.toFixed(2)}`
 
 const cap = (value: string) => (value ? value.charAt(0).toUpperCase() + value.slice(1) : value)
 
@@ -164,8 +148,8 @@ const buildReceiptHtml = (opts: ReceiptRenderOptions, theme: ReceiptTheme): stri
     createdAt,
     items,
     subtotal,
-    vatByRate,
-    vatTotal,
+    gstByRate,
+    gstTotal,
     total,
     grandTotal,
     discountAmount,
@@ -197,7 +181,7 @@ const buildReceiptHtml = (opts: ReceiptRenderOptions, theme: ReceiptTheme): stri
   const tagline = esc((source.tagline ?? '').trim() || 'Quick Bites, Happy Vibes')
   const phone = (source.phoneNumber ?? '').trim()
   const website = (source.website ?? '').trim()
-  const vatNumber = (source.vatNumber ?? '').trim()
+  const gstin = (source.gstin ?? '').trim()
 
   // Split the address into street + city/postal lines like the reference receipt
   const rawAddress = (source.address ?? '').trim()
@@ -210,9 +194,9 @@ const buildReceiptHtml = (opts: ReceiptRenderOptions, theme: ReceiptTheme): stri
     city = rawAddress.slice(lastComma + 1).trim()
   }
 
-  // Belgian (Europe/Brussels) local time — matches the fiscal clock and the reference receipt
-  const brussels = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Europe/Brussels',
+  // Indian Standard Time — matches the GST invoice clock
+  const istParts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Kolkata',
     weekday: 'long',
     day: 'numeric',
     month: 'numeric',
@@ -223,8 +207,8 @@ const buildReceiptHtml = (opts: ReceiptRenderOptions, theme: ReceiptTheme): stri
     hourCycle: 'h23'
   }).formatToParts(dateObj)
 
-  const bGet = (type: string) => brussels.find(part => part.type === type)?.value ?? ''
-  const dateLine = `${bGet('weekday')} ${bGet('day')}-${bGet('month').replace(/^0/, '')}-${bGet('year')} ${bGet('hour')}:${bGet('minute')}:${bGet('second')}`
+  const istGet = (type: string) => istParts.find(part => part.type === type)?.value ?? ''
+  const dateLine = `${istGet('weekday')} ${istGet('day')}-${istGet('month').replace(/^0/, '')}-${istGet('year')} ${istGet('hour')}:${istGet('minute')}:${istGet('second')}`
 
   const center = (content: string, size?: number) =>
     `<div style="text-align:center;${size ? `font-size:${size}px;` : ''}">${content}</div>`
@@ -248,18 +232,18 @@ const buildReceiptHtml = (opts: ReceiptRenderOptions, theme: ReceiptTheme): stri
     center(tagline, T.small),
     ...(street ? [center(esc(street), T.small)] : []),
     ...(city ? [center(esc(city), T.small)] : []),
-    ...(vatNumber ? [center(`BTW/VAT: ${esc(vatNumber)}`, T.small)] : []),
+    ...(gstin ? [center(`GSTIN: ${esc(gstin)}`, T.small)] : []),
     ...(phone ? [center(`Tel: ${esc(phone)}`, T.small)] : []),
     ...(website ? [center(esc(website), T.small)] : [])
   ].join('')
 
-  // 2. Order items (reference style: no column header, price with VAT-category suffix)
+  // 2. Order items (reference style: no column header)
   const itemRows = items
     .map(item => {
       const row = `<div style="display:flex;padding:1px 0;">
         <span style="width:${T.qtyW}px;flex:none;">${item.quantity}</span>
         <span style="flex:1;padding-right:${T.small}px;word-wrap:break-word;">${esc(item.name)}</span>
-        <span style="width:${T.priceW}px;flex:none;text-align:right;white-space:nowrap;">${money(item.total)} B</span>
+        <span style="width:${T.priceW}px;flex:none;text-align:right;white-space:nowrap;">${money(item.total)}</span>
       </div>`
 
       const addonLines = (item.addons ?? [])
@@ -275,26 +259,29 @@ const buildReceiptHtml = (opts: ReceiptRenderOptions, theme: ReceiptTheme): stri
     })
     .join('')
 
-  // 3. Totals (reference: "N Totaal" + "Belastbaar B-Middel" + rate lines)
+  // 3. Totals — Indian GST invoice style: taxable amount, then CGST + SGST per rate bracket
   const totalQty = items.reduce((sum, item) => sum + item.quantity, 0)
 
-  const vatRateRows =
-    vatByRate && Object.keys(vatByRate).length > 0
-      ? Object.entries(vatByRate)
+  const gstRateRows =
+    gstByRate && Object.keys(gstByRate).length > 0
+      ? Object.entries(gstByRate)
           .sort(([a], [b]) => Number(a) - Number(b))
-          .map(([rate, vat]) => subRow(`${rate}% B-Middel`, money(vat)))
+          .flatMap(([rate, gst]) => [
+            subRow(`CGST ${(Number(rate) / 2).toFixed(1)}%`, money(gst / 2)),
+            subRow(`SGST ${(Number(rate) / 2).toFixed(1)}%`, money(gst / 2))
+          ])
           .join('')
-      : (vatTotal ?? 0) > 0
-        ? subRow('Btw', money(vatTotal ?? 0))
+      : (gstTotal ?? 0) > 0
+        ? [subRow('CGST', money((gstTotal ?? 0) / 2)), subRow('SGST', money((gstTotal ?? 0) / 2))].join('')
         : ''
 
   const discountLabel =
-    discountType === 'percentage' && discountValue != null ? `Korting ${discountValue}%` : 'Korting'
+    discountType === 'percentage' && discountValue != null ? `Discount ${discountValue}%` : 'Discount'
 
   const totals = [
     totalRow(`${totalQty} Total`, money(payable), true),
-    ...(subtotal > 0 ? [subRow('Belastbaar B-Middel', money(subtotal))] : []),
-    vatRateRows,
+    ...(subtotal > 0 ? [subRow('Taxable Amount', money(subtotal))] : []),
+    gstRateRows,
     ...((discountAmount ?? 0) > 0 ? [subRow(discountLabel, `-${money(discountAmount ?? 0)}`)] : [])
   ].join('')
 
@@ -329,7 +316,7 @@ const buildReceiptHtml = (opts: ReceiptRenderOptions, theme: ReceiptTheme): stri
     ${payment}
     ${bottomInfo}
     ${starSep()}
-    ${center('BEDANKT EN TOT ZIENS!')}
+    ${center('THANK YOU, VISIT AGAIN!')}
     ${starSep()}
   </div>`
 }
@@ -394,6 +381,7 @@ const buildPrintDocument = (receiptHtml: string): string => `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Action Arena - Receipt</title>
 <style>
   @page { size: 80mm 297mm; margin: 0; }
@@ -404,8 +392,22 @@ const buildPrintDocument = (receiptHtml: string): string => `<!DOCTYPE html>
   .dd-print-actions { display: flex; justify-content: center; gap: 10px; padding: 18px 0 28px; }
   .dd-print-actions button { padding: 10px 28px; border-radius: 6px; border: 1px solid #ccc; background: #fff; font-size: 14px; font-family: system-ui, -apple-system, sans-serif; cursor: pointer; }
   .dd-print-actions .primary { background: #1976d2; color: #fff; border-color: #1976d2; }
+  /* On tablets/iPads the 80mm receipt is otherwise too small to read on screen.
+     Zoom the preview so it scales up responsively; printing still uses 80mm. */
+  @media screen {
+    .dd-page { min-height: 100vh; justify-content: center; padding: 16px 0 28px; }
+    .dd-receipt { box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+    @media (min-width: 684px) {
+      .dd-receipt { zoom: 1.8; }
+    }
+    @media (max-width: 683px) {
+      .dd-receipt { zoom: 1.3; }
+    }
+  }
   @media print {
     body { background: #fff; }
+    .dd-page { min-height: auto; padding: 0; }
+    .dd-receipt { width: 80mm; max-width: 80mm; zoom: 1; box-shadow: none; }
     .dd-print-actions { display: none !important; }
   }
 </style>
@@ -419,11 +421,14 @@ const buildPrintDocument = (receiptHtml: string): string => `<!DOCTYPE html>
     </div>
   </div>
   <script>
-    // Fit the page height to the receipt so Print produces one page
+    // Fit the page height to the receipt so Print produces one page.
+    // getBoundingClientRect().height already includes the preview zoom, so divide
+    // by the zoom factor to recover the true printed height in CSS px.
     window.addEventListener('load', function () {
       var el = document.getElementById('dd-receipt')
       if (!el) return
-      var heightMm = Math.ceil((el.getBoundingClientRect().height / 96) * 25.4 + 1)
+      var zoom = parseFloat(getComputedStyle(el).zoom) || 1
+      var heightMm = Math.ceil((el.getBoundingClientRect().height / zoom / 96) * 25.4 + 1)
       var style = document.createElement('style')
       style.innerHTML = '@page { size: 80mm ' + heightMm + 'mm; margin: 0; }'
       document.head.appendChild(style)
@@ -441,8 +446,8 @@ const ReceiptDialog = forwardRef<ReceiptDialogHandle, ReceiptDialogProps>(
       orderNumber,
       items,
       subtotal,
-      vatByRate,
-      vatTotal,
+      gstByRate,
+      gstTotal,
       total,
       grandTotal,
       discountAmount,
@@ -497,8 +502,8 @@ const ReceiptDialog = forwardRef<ReceiptDialogHandle, ReceiptDialogProps>(
         createdAt,
         items,
         subtotal,
-        vatByRate,
-        vatTotal,
+        gstByRate,
+        gstTotal,
         total,
         grandTotal,
         discountAmount,
@@ -522,8 +527,8 @@ const ReceiptDialog = forwardRef<ReceiptDialogHandle, ReceiptDialogProps>(
         createdAt,
         items,
         subtotal,
-        vatByRate,
-        vatTotal,
+        gstByRate,
+        gstTotal,
         total,
         grandTotal,
         discountAmount,
@@ -672,9 +677,9 @@ const ReceiptDialog = forwardRef<ReceiptDialogHandle, ReceiptDialogProps>(
                     const d = createdAt ? new Date(createdAt) : new Date()
 
                     return (
-                      d.toLocaleDateString('en-GB', { timeZone: 'Europe/Brussels' }) +
+                      d.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' }) +
                       ' ' +
-                      d.toLocaleTimeString('en-GB', { timeZone: 'Europe/Brussels', hour: '2-digit', minute: '2-digit' })
+                      d.toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })
                     )
                   })()}
                 </span>
@@ -744,7 +749,7 @@ const ReceiptDialog = forwardRef<ReceiptDialogHandle, ReceiptDialogProps>(
                       sx={{ width: 160 }}
                     />
                     <Typography variant='body2' color='text.secondary'>
-                      Change: €{(change ?? 0).toFixed(2)}
+                      Change: ₹{(change ?? 0).toFixed(2)}
                     </Typography>
                   </Box>
                 )}

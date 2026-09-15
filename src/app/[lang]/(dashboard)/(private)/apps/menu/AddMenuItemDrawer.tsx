@@ -39,14 +39,14 @@ type FormValidateType = {
   offer: string
   status: boolean
   categoryId: number[]
-  vatRate: number
+  gstRate: number
   priority: number
 }
 
 type CategoryOption = {
   id: number
   name: string
-  vatRate?: number
+  gstRate?: number
 }
 
 const Dropzone = styled('div')(({ theme }) => ({
@@ -85,7 +85,7 @@ const AddMenuItemDrawer = (props: Props) => {
       offer: '0',
       status: true,
       categoryId: [],
-      vatRate: 12,
+      gstRate: 5,
       priority: 999999
     }
   })
@@ -148,7 +148,7 @@ const AddMenuItemDrawer = (props: Props) => {
         offer: itemToEdit.offer || '0',
         status: itemToEdit.status ?? true,
         categoryId: itemToEdit.categories?.map(c => c.id) || [],
-        vatRate: itemToEdit.vatRate ?? 12,
+        gstRate: itemToEdit.gstRate ?? 5,
         priority: itemToEdit.priority ?? 999999
       })
 
@@ -161,11 +161,13 @@ const AddMenuItemDrawer = (props: Props) => {
       }).filter(Boolean)
 
       setFiles(existingImages)
-      setTotalPriceInput(Math.round(itemToEdit.price * (1 + ((itemToEdit.vatRate ?? 12) / 100)) * 10000) / 10000)
+      setTotalPriceInput(Math.round(itemToEdit.price * (1 + ((itemToEdit.gstRate ?? 5) / 100)) * 10000) / 10000)
+      setItemPriceInput(itemToEdit.price || 0)
     } else {
       resetForm()
       setFiles([])
       setTotalPriceInput(0)
+      setItemPriceInput(0)
     }
   }, [itemToEdit, open, resetForm])
 
@@ -174,28 +176,46 @@ const AddMenuItemDrawer = (props: Props) => {
   }
 
   const [totalPriceInput, setTotalPriceInput] = useState<number>(0)
-  const watchedVatRate = watch('vatRate')
+  const [itemPriceInput, setItemPriceInput] = useState<number>(0)
+  const watchedGstRate = watch('gstRate')
 
-  const computedPrice = totalPriceInput > 0
-    ? Math.round(
-        watchedVatRate === 0
-          ? totalPriceInput
-          : totalPriceInput / (1 + (watchedVatRate ?? 0) / 100) * 10000
-      ) / 10000
-    : 0
+  const computeTotalFromBase = (base: number, gstRate: number) => {
+    const g = gstRate || 0
 
+    return Math.round(base * (1 + g / 100) * 10000) / 10000
+  }
+
+  const computeBaseFromTotal = (total: number, gstRate: number) => {
+    const g = gstRate || 0
+
+    return Math.round((g === 0 ? total : total / (1 + g / 100)) * 10000) / 10000
+  }
+
+  // Editing Item price sets the base (pre-GST) price and recalculates Total price
+  const handleItemPriceChange = (value: number) => {
+    setItemPriceInput(value)
+
+    if (value > 0) {
+      setValue('price', value)
+      setTotalPriceInput(computeTotalFromBase(value, watchedGstRate ?? 0))
+    } else {
+      setValue('price', 0)
+      setTotalPriceInput(0)
+    }
+  }
+
+  // Editing Total price (GST-inclusive) recalculates the base Item price
   const handleTotalPriceChange = (value: number) => {
     setTotalPriceInput(value)
 
     if (value > 0) {
-      const normalizedVatRate = watchedVatRate ?? 0
+      const base = computeBaseFromTotal(value, watchedGstRate ?? 0)
 
-      setValue(
-        'price',
-        Math.round(
-          normalizedVatRate === 0 ? value : value / (1 + normalizedVatRate / 100) * 10000
-        ) / 10000
-      )
+      setItemPriceInput(base)
+      setValue('price', base)
+    } else {
+      setValue('price', 0)
+      setItemPriceInput(0)
     }
   }
 
@@ -274,6 +294,7 @@ const AddMenuItemDrawer = (props: Props) => {
     handleClose()
     setFiles([])
     setTotalPriceInput(0)
+    setItemPriceInput(0)
     resetForm({
       id: 0,
       name: '',
@@ -283,7 +304,7 @@ const AddMenuItemDrawer = (props: Props) => {
       offer: '0',
       status: true,
       categoryId: [],
-      vatRate: 12,
+      gstRate: 5,
       priority: 999999
     })
   }
@@ -324,11 +345,11 @@ const AddMenuItemDrawer = (props: Props) => {
                   if (ids.length > 0) {
                     const cat = categoryIds.find(c => c.id === ids[0])
 
-                    if (cat?.vatRate != null) {
-                      setValue('vatRate', cat.vatRate)
+                    if (cat?.gstRate != null) {
+                      setValue('gstRate', cat.gstRate)
 
-                      if (totalPriceInput > 0) {
-                        setValue('price', Math.round(totalPriceInput / (1 + cat.vatRate / 100) * 10000) / 10000)
+                      if (itemPriceInput > 0) {
+                        setTotalPriceInput(Math.round(itemPriceInput * (1 + cat.gstRate / 100) * 10000) / 10000)
                       }
                     }
                   }
@@ -391,14 +412,16 @@ const AddMenuItemDrawer = (props: Props) => {
                 fullWidth
                 type='number'
                 label='Item price'
-                value={computedPrice > 0 ? computedPrice.toFixed(2) : (field.value || 0).toFixed(2)}
-                InputProps={{ readOnly: true }}
+                placeholder='0'
+                value={itemPriceInput || ''}
+                onChange={e => handleItemPriceChange(Number(e.target.value))}
+                helperText='Inclusive of GST is auto-calculated in Total price.'
                 {...(errors.price && { error: true, helperText: 'Price must be a positive number.' })}
               />
             )}
           />
           <Controller
-            name='vatRate'
+            name='gstRate'
             control={control}
             rules={{ required: true, min: 0 }}
             render={({ field }) => (
@@ -406,16 +429,18 @@ const AddMenuItemDrawer = (props: Props) => {
                 {...field}
                 fullWidth
                 type='number'
-                label='VAT Rate (%)'
-                placeholder='12'
+                label='GST Rate (%)'
+                placeholder='5'
                 onChange={e => {
                   field.onChange(Number(e.target.value))
 
-                  if (totalPriceInput > 0) {
-                    setValue('price', Math.round(totalPriceInput / (1 + Number(e.target.value) / 100) * 10000) / 10000)
+                  if (itemPriceInput > 0) {
+                    setTotalPriceInput(Math.round(itemPriceInput * (1 + Number(e.target.value) / 100) * 10000) / 10000)
                   }
                 }}
-                {...(errors.vatRate && { error: true, helperText: 'VAT rate must be 0 or more.' })}
+                {...(errors.gstRate
+                  ? { error: true, helperText: 'GST rate must be 0 or more.' }
+                  : { helperText: `CGST ${(field.value / 2).toFixed(1)}% + SGST ${(field.value / 2).toFixed(1)}%` })}
               />
             )}
           />

@@ -96,7 +96,7 @@ export function useReport<T>({ endpoint, defaultRange }: UseReportOptions) {
 }
 
 export function formatCurrency(n: number): string {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(n)
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n)
 }
 
 export function formatNumber(n: number): string {

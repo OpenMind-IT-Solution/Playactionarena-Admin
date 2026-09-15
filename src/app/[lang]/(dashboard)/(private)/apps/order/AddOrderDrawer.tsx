@@ -34,7 +34,8 @@ import { get, post } from '@/services/apiService'
 import { menuEndpoints } from '@/services/endpoints/menu'
 import { orderEndpoints } from '@/services/endpoints/order'
 
-const TAX_RATE = 0.12
+const TAX_RATE = 0.05
+const HALF_TAX_RATE = TAX_RATE / 2 // GST splits evenly into CGST + SGST
 
 type Props = {
   open: boolean
@@ -70,8 +71,8 @@ const AddOrderDrawer = ({ open, handleClose, onSuccess }: Props) => {
 
   const selectedMenuItem = menuOptions.find(m => m.id === newMenuItemId)
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0)
-  const vatAmount = subtotal * TAX_RATE
-  const grandTotal = subtotal + vatAmount
+  const gstAmount = subtotal * TAX_RATE
+  const grandTotal = subtotal + gstAmount
 
   useEffect(() => {
     if (!open) return
@@ -161,7 +162,7 @@ const AddOrderDrawer = ({ open, handleClose, onSuccess }: Props) => {
         deliveryAddress: deliveryAddress || undefined,
         totalAmount: grandTotal,
         subtotal,
-        taxAmount: vatAmount,
+        taxAmount: gstAmount,
         items: items.map(i => ({ menuItemId: i.menuItemId, quantity: i.quantity, price: i.price }))
       })
       toast.success('Order created successfully')
@@ -337,7 +338,7 @@ const AddOrderDrawer = ({ open, handleClose, onSuccess }: Props) => {
                     >
                       <MenuItem value=''>{menuLoading ? 'Loading…' : 'Select item'}</MenuItem>
                       {menuOptions.map(m => (
-                        <MenuItem key={m.id} value={m.id}>{m.name} — €{m.price}</MenuItem>
+                        <MenuItem key={m.id} value={m.id}>{m.name} — ₹{m.price}</MenuItem>
                       ))}
                     </Select>
                   </FormControl>
@@ -347,7 +348,7 @@ const AddOrderDrawer = ({ open, handleClose, onSuccess }: Props) => {
                     fullWidth
                     size='small'
                     label='Unit Price'
-                    value={selectedMenuItem ? `€${selectedMenuItem.price}` : ''}
+                    value={selectedMenuItem ? `₹${selectedMenuItem.price}` : ''}
                     disabled
                   />
                 </Grid>
@@ -413,7 +414,7 @@ const AddOrderDrawer = ({ open, handleClose, onSuccess }: Props) => {
                         <Typography sx={{ fontWeight: 600, fontSize: 13 }}>{item.name}</Typography>
                       </TableCell>
                       <TableCell align='center' sx={{ py: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
-                        <Typography fontSize={13} color='text.secondary'>€{item.price.toFixed(2)}</Typography>
+                        <Typography fontSize={13} color='text.secondary'>₹{item.price.toFixed(2)}</Typography>
                       </TableCell>
                       <TableCell align='center' sx={{ py: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
                         <Box
@@ -449,7 +450,7 @@ const AddOrderDrawer = ({ open, handleClose, onSuccess }: Props) => {
                       </TableCell>
                       <TableCell align='center' sx={{ py: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
                         <Typography fontSize={13} fontWeight={600}>
-                          €{(item.price * item.quantity).toFixed(2)}
+                          ₹{(item.price * item.quantity).toFixed(2)}
                         </Typography>
                       </TableCell>
                       <TableCell align='center' sx={{ py: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
@@ -493,16 +494,20 @@ const AddOrderDrawer = ({ open, handleClose, onSuccess }: Props) => {
               >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                   <Typography variant='body2' color='text.secondary'>Items ({items.length})</Typography>
-                  <Typography variant='body2' fontWeight={600}>€{subtotal.toFixed(2)}</Typography>
+                  <Typography variant='body2' fontWeight={600}>₹{subtotal.toFixed(2)}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                  <Typography variant='body2' color='text.secondary'>VAT ({(TAX_RATE * 100).toFixed(0)}%)</Typography>
-                  <Typography variant='body2'>€{vatAmount.toFixed(2)}</Typography>
+                  <Typography variant='body2' color='text.secondary'>CGST ({(HALF_TAX_RATE * 100).toFixed(1)}%)</Typography>
+                  <Typography variant='body2'>₹{(gstAmount / 2).toFixed(2)}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Typography variant='body2' color='text.secondary'>SGST ({(HALF_TAX_RATE * 100).toFixed(1)}%)</Typography>
+                  <Typography variant='body2'>₹{(gstAmount / 2).toFixed(2)}</Typography>
                 </Box>
                 <Divider sx={{ mb: 1.5, borderColor: 'divider' }} />
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant='subtitle2' fontWeight={700}>Grand Total</Typography>
-                  <Typography variant='subtitle1' fontWeight={700} color='primary'>€{grandTotal.toFixed(2)}</Typography>
+                  <Typography variant='subtitle1' fontWeight={700} color='primary'>₹{grandTotal.toFixed(2)}</Typography>
                 </Box>
               </Paper>
             </Box>
@@ -518,7 +523,7 @@ const AddOrderDrawer = ({ open, handleClose, onSuccess }: Props) => {
               {items.length > 0 ? 'Grand Total' : 'Total'}
             </Typography>
             <Typography variant='h5' sx={{ fontWeight: 700, lineHeight: 1.3, color: items.length > 0 ? 'primary.main' : 'text.primary' }}>
-              €{items.length > 0 ? grandTotal.toFixed(2) : '0.00'}
+              ₹{items.length > 0 ? grandTotal.toFixed(2) : '0.00'}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', gap: 1.5 }}>
@@ -546,16 +551,20 @@ const AddOrderDrawer = ({ open, handleClose, onSuccess }: Props) => {
               </Typography>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', maxWidth: 260, mt: 2 }}>
                 <Typography variant='body2' color='text.secondary'>Subtotal</Typography>
-                <Typography variant='body2'>€{subtotal.toFixed(2)}</Typography>
+                <Typography variant='body2'>₹{subtotal.toFixed(2)}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', maxWidth: 260 }}>
-                <Typography variant='body2' color='text.secondary'>VAT ({(TAX_RATE * 100).toFixed(0)}%)</Typography>
-                <Typography variant='body2'>€{vatAmount.toFixed(2)}</Typography>
+                <Typography variant='body2' color='text.secondary'>CGST ({(HALF_TAX_RATE * 100).toFixed(1)}%)</Typography>
+                <Typography variant='body2'>₹{(gstAmount / 2).toFixed(2)}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', maxWidth: 260 }}>
+                <Typography variant='body2' color='text.secondary'>SGST ({(HALF_TAX_RATE * 100).toFixed(1)}%)</Typography>
+                <Typography variant='body2'>₹{(gstAmount / 2).toFixed(2)}</Typography>
               </Box>
               <Divider sx={{ my: 1 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', maxWidth: 260 }}>
                 <Typography variant='subtitle2' fontWeight={700}>Grand Total</Typography>
-                <Typography variant='subtitle2' fontWeight={700} color='primary'>€{grandTotal.toFixed(2)}</Typography>
+                <Typography variant='subtitle2' fontWeight={700} color='primary'>₹{grandTotal.toFixed(2)}</Typography>
               </Box>
             </Box>
           </DialogContent>

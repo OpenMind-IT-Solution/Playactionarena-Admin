@@ -7,7 +7,7 @@ export type MenuItems = {
   status: boolean
   tag?: string
   offer?: string
-  vatRate?: number
+  gstRate?: number
   priority?: number
   categories?: {
     id: number

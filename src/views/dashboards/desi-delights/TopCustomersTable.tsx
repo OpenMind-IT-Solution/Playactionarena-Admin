@@ -99,7 +99,7 @@ const TopCustomersTable = ({ customerAnalytics }: TopCustomersTableProps) => {
                 </TableCell>
                 <TableCell>
                   <Typography variant='body2' fontWeight={700}>
-                    €{Number(customer.totalSpent || 0).toFixed(2)}
+                    ₹{Number(customer.totalSpent || 0).toFixed(2)}
                   </Typography>
                 </TableCell>
               </TableRow>

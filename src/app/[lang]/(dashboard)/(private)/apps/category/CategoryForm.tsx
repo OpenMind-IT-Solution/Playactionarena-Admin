@@ -29,7 +29,7 @@ const validationSchema = yup.object({
   name: yup.string().trim().required('Category Name is required'),
   description: yup.string().trim().required('Description is required'),
   status: yup.string().oneOf(['active', 'inactive']).required('Status is required'),
-  vatRate: yup.number().min(0, 'VAT rate must be 0 or more').optional()
+  gstRate: yup.number().min(0, 'GST rate must be 0 or more').optional()
 })
 
 const CategoryForm = ({ mode, category, onSave, onCancel }: CategoryFormProps) => {
@@ -40,7 +40,7 @@ const CategoryForm = ({ mode, category, onSave, onCancel }: CategoryFormProps) =
       name: category?.name || '',
       description: category?.description || '',
       status: category?.status || 'active',
-      vatRate: category?.vatRate || undefined
+      gstRate: category?.gstRate || undefined
     },
     validationSchema: validationSchema,
 
@@ -106,15 +106,17 @@ const CategoryForm = ({ mode, category, onSave, onCancel }: CategoryFormProps) =
 
       <CustomTextField
         fullWidth
-        name='vatRate'
+        name='gstRate'
         type='number'
-        label='VAT Rate (%)'
-        placeholder='12'
-        value={formik.values.vatRate ?? ''}
-        onChange={e => formik.setFieldValue('vatRate', e.target.value === '' ? undefined : Number(e.target.value))}
+        label='GST Rate (%)'
+        placeholder='5'
+        value={formik.values.gstRate ?? ''}
+        onChange={e => formik.setFieldValue('gstRate', e.target.value === '' ? undefined : Number(e.target.value))}
         onBlur={formik.handleBlur}
-        error={formik.touched.vatRate && Boolean(formik.errors.vatRate)}
-        helperText={formik.touched.vatRate && formik.errors.vatRate}
+        error={formik.touched.gstRate && Boolean(formik.errors.gstRate)}
+        helperText={
+          (formik.touched.gstRate && formik.errors.gstRate) || 'Total GST %, split evenly into CGST + SGST'
+        }
       />
 
       <Box className='flex gap-4'>

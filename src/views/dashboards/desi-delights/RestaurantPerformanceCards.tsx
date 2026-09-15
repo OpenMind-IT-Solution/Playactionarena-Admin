@@ -48,14 +48,14 @@ const RestaurantPerformanceCards = ({
       },
       {
         title: 'Avg Order Value',
-        value: `€${avgOrderValue.toFixed(2)}`,
+        value: `₹${avgOrderValue.toFixed(2)}`,
         icon: 'tabler-receipt',
         color: '#7367F0',
         detail: `${totalOrders} total orders`
       },
       {
         title: 'Revenue per Customer',
-        value: `€${totalCustomers > 0 ? (totalRevenue / totalCustomers).toFixed(2) : '0.00'}`,
+        value: `₹${totalCustomers > 0 ? (totalRevenue / totalCustomers).toFixed(2) : '0.00'}`,
         icon: 'tabler-cash',
         color: '#00CFE8',
         detail: `${totalCustomers} customers`

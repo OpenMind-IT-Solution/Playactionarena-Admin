@@ -370,7 +370,7 @@ const OrderListTable = () => {
       }),
       columnHelper.accessor('totalAmount', {
         header: 'Total Amount',
-        cell: ({ row }) => <Typography>€{row.original.totalAmount}</Typography>
+        cell: ({ row }) => <Typography>₹{row.original.totalAmount}</Typography>
       }),
       columnHelper.accessor('paymentStatus', {
         header: 'Payment Status',
@@ -641,7 +641,7 @@ return <Typography>{Array.isArray(orderItems) ? `${orderItems.length} items` : '
           total: item.price * item.quantity
         }))}
         subtotal={Number((receiptOrder as any)?.subtotal || 0)}
-        vatTotal={Number((receiptOrder as any)?.taxAmount || 0)}
+        gstTotal={Number((receiptOrder as any)?.taxAmount || 0)}
         total={Number(receiptOrder?.totalAmount || 0)}
         grandTotal={Number(receiptOrder?.totalAmount || 0)}
         discountAmount={Number((receiptOrder as any)?.discountAmount || 0)}

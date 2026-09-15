@@ -28,11 +28,11 @@ interface DashboardContextValue {
 
 const DashboardContext = createContext<DashboardContextValue | null>(null)
 
-const belgiumFormatter = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Brussels' })
+const indiaFormatter = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Kolkata' })
 
-function getBelgiumDateRange(preset: DateRangePreset, customStart: string, customEnd: string): DateRange {
+function getIndiaDateRange(preset: DateRangePreset, customStart: string, customEnd: string): DateRange {
   const now = new Date()
-  const todayStr = belgiumFormatter.format(now)
+  const todayStr = indiaFormatter.format(now)
 
   const startOfDay = (dateStr: string) => `${dateStr}T00:00:00`
   const endOfDay = (dateStr: string) => `${dateStr}T23:59:59`
@@ -46,7 +46,7 @@ function getBelgiumDateRange(preset: DateRangePreset, customStart: string, custo
 
       d.setDate(d.getDate() - 1)
 
-      const yesterdayStr = belgiumFormatter.format(d)
+      const yesterdayStr = indiaFormatter.format(d)
 
       return { startDate: startOfDay(yesterdayStr), endDate: endOfDay(yesterdayStr) }
     }
@@ -56,7 +56,7 @@ function getBelgiumDateRange(preset: DateRangePreset, customStart: string, custo
 
       d.setDate(d.getDate() - 6)
 
-      const startStr = belgiumFormatter.format(d)
+      const startStr = indiaFormatter.format(d)
 
       return { startDate: startOfDay(startStr), endDate: endOfDay(todayStr) }
     }
@@ -66,14 +66,14 @@ function getBelgiumDateRange(preset: DateRangePreset, customStart: string, custo
 
       d.setDate(d.getDate() - 29)
 
-      const startStr = belgiumFormatter.format(d)
+      const startStr = indiaFormatter.format(d)
 
       return { startDate: startOfDay(startStr), endDate: endOfDay(todayStr) }
     }
 
     case 'thisMonth': {
-      const year = now.toLocaleString('en-US', { timeZone: 'Europe/Brussels', year: 'numeric' })
-      const month = now.toLocaleString('en-US', { timeZone: 'Europe/Brussels', month: '2-digit' })
+      const year = now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata', year: 'numeric' })
+      const month = now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata', month: '2-digit' })
 
       return { startDate: `${year}-${month}-01T00:00:00`, endDate: endOfDay(todayStr) }
     }
@@ -83,7 +83,7 @@ function getBelgiumDateRange(preset: DateRangePreset, customStart: string, custo
 
       d.setDate(0)
 
-      const lastMonthStr = belgiumFormatter.format(d)
+      const lastMonthStr = indiaFormatter.format(d)
       const year = lastMonthStr.substring(0, 4)
       const month = lastMonthStr.substring(5, 7)
 
@@ -109,8 +109,8 @@ function getPreviousDateRange(current: DateRange): DateRange {
   const prevStart = new Date(prevEnd.getTime() - diff)
 
   return {
-    startDate: `${belgiumFormatter.format(prevStart)}T00:00:00`,
-    endDate: `${belgiumFormatter.format(prevEnd)}T23:59:59`
+    startDate: `${indiaFormatter.format(prevStart)}T00:00:00`,
+    endDate: `${indiaFormatter.format(prevEnd)}T23:59:59`
   }
 }
 
@@ -123,7 +123,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [restaurants, setRestaurants] = useState<Array<{ id: number; name: string }>>([])
 
   const dateRange = useMemo(
-    () => getBelgiumDateRange(dateRangePreset, customStartDate, customEndDate),
+    () => getIndiaDateRange(dateRangePreset, customStartDate, customEndDate),
     [dateRangePreset, customStartDate, customEndDate]
   )
 

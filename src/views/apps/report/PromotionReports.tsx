@@ -42,7 +42,7 @@ const PromotionReports = () => {
           <div className='flex flex-wrap md:flex-nowrap gap-4 mb-4'>
             <StatCard className='w-full md:w-1/4' title='Orders with Discount' value={data.totalOrdersWithDiscount} icon='tabler-percentage' color='primary' isSelected={false} onClick={() => {}} />
             <StatCard className='w-full md:w-1/4' title='Total Discount Given' value={data.totalDiscountAmount} icon='tabler-discount' color='success' isSelected={false} onClick={() => {}} />
-            <StatCard className='w-full md:w-1/4' title='Revenue After Discount' value={data.totalRevenueAfterDiscount} icon='tabler-currency-euro' color='warning' isSelected={false} onClick={() => {}} />
+            <StatCard className='w-full md:w-1/4' title='Revenue After Discount' value={data.totalRevenueAfterDiscount} icon='tabler-currency-rupee' color='warning' isSelected={false} onClick={() => {}} />
             <StatCard className='w-full md:w-1/4' title='Avg Discount/Order' value={data.avgDiscountPerOrder} icon='tabler-calculator' color='error' isSelected={false} onClick={() => {}} />
           </div>
           <ReportTable

@@ -24,7 +24,7 @@ type Props = {
   orders: OrderType[]
 }
 
-const VAT_RATES = [21, 12, 6]
+const GST_RATES = [5, 12, 18]
 
 const round2 = (value: number): number => Math.round((value + Number.EPSILON) * 100) / 100
 
@@ -103,27 +103,27 @@ const ExportMonthlyDialog = ({ open, onClose, orders }: Props) => {
       const rows = sortedDays.map(day => {
         const dayOrders = byDay.get(day)!
 
-        const totalTVAC = round2(dayOrders.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0))
+        const totalInclGst = round2(dayOrders.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0))
 
-        const bracketSums: Record<number, { htva: number; tva: number }> = {}
+        const bracketSums: Record<number, { taxable: number; gst: number }> = {}
 
-        VAT_RATES.forEach(rate => {
-          bracketSums[rate] = { htva: 0, tva: 0 }
+        GST_RATES.forEach(rate => {
+          bracketSums[rate] = { taxable: 0, gst: 0 }
         })
 
         dayOrders.forEach(order => {
           ;(order.orderItems || order.items || []).forEach((item: any) => {
             const qty = Number(item.quantity || 0)
             const netPrice = Number(item.price || 0)
-            let rate = item.vatRate != null ? Number(item.vatRate) : null
+            let rate = item.gstRate != null ? Number(item.gstRate) : null
 
-            if (rate == null || isNaN(rate)) rate = 12
+            if (rate == null || isNaN(rate)) rate = 5
 
-            const bucket = bracketSums[rate] || bracketSums[12]
-            const htva = netPrice * qty
+            const bucket = bracketSums[rate] || bracketSums[5]
+            const taxable = netPrice * qty
 
-            bucket.htva += htva
-            bucket.tva += (htva * rate) / 100
+            bucket.taxable += taxable
+            bucket.gst += (taxable * rate) / 100
           })
         })
 
@@ -133,17 +133,30 @@ const ExportMonthlyDialog = ({ open, onClose, orders }: Props) => {
         return [
           day,
           dayOrders.length,
-          number(totalTVAC),
-          ...VAT_RATES.map(rate => number(round2(bracketSums[rate].htva))),
-          ...VAT_RATES.map(rate => number(round2(bracketSums[rate].tva))),
+          number(totalInclGst),
+          ...GST_RATES.map(rate => number(round2(bracketSums[rate].taxable))),
+          ...GST_RATES.map(rate => number(round2(bracketSums[rate].gst / 2))),
+          ...GST_RATES.map(rate => number(round2(bracketSums[rate].gst / 2))),
           number(byPayment(m => m === 'cash')),
           number(byPayment(m => m !== 'cash' && m !== 'card')),
           number(byPayment(m => m === 'card'))
         ]
       })
 
-      const headerRow1 = ['Date', 'Numéro', 'CA TVAC', 'CA HTVA', 'CA HTVA', 'CA HTVA', 'TVA', 'TVA', 'TVA', 'CA TVAC', 'CA TVAC', 'CA TVAC']
-      const headerRow2 = ['', '', 'Total', '21%', '12%', '6%', '21%', '12%', '6%', 'Espèce', 'Virement', 'Carte bancaire']
+      const headerRow1 = [
+        'Date', 'Orders', 'Total (Incl. GST)',
+        'Taxable Value', 'Taxable Value', 'Taxable Value',
+        'CGST', 'CGST', 'CGST',
+        'SGST', 'SGST', 'SGST',
+        'Revenue', 'Revenue', 'Revenue'
+      ]
+      const headerRow2 = [
+        '', '', '',
+        '5%', '12%', '18%',
+        '5%', '12%', '18%',
+        '5%', '12%', '18%',
+        'Cash', 'Online/UPI', 'Card'
+      ]
 
       const aoa = [headerRow1, headerRow2, ...rows]
       const ws = XLSX.utils.aoa_to_sheet(aoa)
@@ -154,23 +167,11 @@ const ExportMonthlyDialog = ({ open, onClose, orders }: Props) => {
         { s: { r: 0, c: 2 }, e: { r: 1, c: 2 } },
         { s: { r: 0, c: 3 }, e: { r: 0, c: 5 } },
         { s: { r: 0, c: 6 }, e: { r: 0, c: 8 } },
-        { s: { r: 0, c: 9 }, e: { r: 0, c: 11 } }
+        { s: { r: 0, c: 9 }, e: { r: 0, c: 11 } },
+        { s: { r: 0, c: 12 }, e: { r: 0, c: 14 } }
       ]
 
-      ws['!cols'] = [
-        { wch: 12 },
-        { wch: 8 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 14 }
-      ]
+      ws['!cols'] = Array.from({ length: 15 }, () => ({ wch: 12 }))
 
       const wb = XLSX.utils.book_new()
 
@@ -194,8 +195,8 @@ const ExportMonthlyDialog = ({ open, onClose, orders }: Props) => {
       </DialogTitle>
       <DialogContent>
         <Typography variant='body2' className='mb-4'>
-          Select a month. The export will contain one row per day with totals (CA TVAC, CA HTVA and TVA per VAT rate,
-          and revenue split by payment method).
+          Select a month. The export will contain one row per day with totals (total incl. GST, taxable value, and
+          CGST/SGST per GST rate, plus revenue split by payment method).
         </Typography>
         <DatePicker
           views={['month', 'year']}

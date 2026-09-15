@@ -110,7 +110,7 @@ return [avgLat, avgLng]
             <div style={{ textAlign: 'center', fontWeight: 'bold' }}>
               <span>{zone.name}</span>
               <br />
-              <span>€{zone.charge.toFixed(2)}</span>
+              <span>₹{zone.charge.toFixed(2)}</span>
             </div>
           </Tooltip>
         </Marker>

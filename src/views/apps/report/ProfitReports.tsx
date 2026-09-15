@@ -37,7 +37,7 @@ const ProfitReports = () => {
                   <Typography variant='h6' sx={{ mb: 2 }}>Revenue Breakdown</Typography>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography>Total Revenue</Typography><Typography fontWeight='bold'>{formatCurrency(data.totalRevenue)}</Typography></Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography>Total Discounts</Typography><Typography fontWeight='bold' color='error'>{formatCurrency(data.totalDiscounts)}</Typography></Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography>Total VAT</Typography><Typography fontWeight='bold'>{formatCurrency(data.totalTax)}</Typography></Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography>Total GST</Typography><Typography fontWeight='bold'>{formatCurrency(data.totalTax)}</Typography></Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography>Estimated COGS</Typography><Typography fontWeight='bold' color='warning'>{formatCurrency(data.estimatedCOGS)}</Typography></Box>
                   <Divider sx={{ my: 1.5 }} />
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography fontWeight='bold'>Net Profit</Typography><Typography fontWeight='bold' color='primary'>{formatCurrency(data.netProfit)}</Typography></Box>
