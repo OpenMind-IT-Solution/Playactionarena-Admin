@@ -150,6 +150,7 @@ const ExportMonthlyDialog = ({ open, onClose, orders }: Props) => {
         'SGST', 'SGST', 'SGST',
         'Revenue', 'Revenue', 'Revenue'
       ]
+
       const headerRow2 = [
         '', '', '',
         '5%', '12%', '18%',
